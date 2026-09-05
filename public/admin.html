@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0d10" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>FLAG SCORE · Адмін-панель</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="admin-body">
+    <section class="login-screen" id="loginScreen">
+      <div class="login-card">
+        <a class="brand brand--dark" href="/"> <span class="brand__mark"></span>FLAG SCORE</a>
+        <span class="kicker">CONTROL ROOM</span>
+        <h1>Керуйте турніром без зайвого шуму.</h1>
+        <p>Оновлюйте рахунок, статус матчу, розклад і склад учасників. Зміни одразу з’являться на публічній сторінці.</p>
+        <form id="loginForm" class="login-form">
+          <label>
+            Пароль адміністратора
+            <input id="passwordInput" name="password" type="password" autocomplete="current-password" required placeholder="Введіть пароль" />
+          </label>
+          <button class="button button--primary button--wide" type="submit">Увійти в адмінку <span>→</span></button>
+          <p class="form-error" id="loginError" role="alert"></p>
+        </form>
+        <a class="back-link" href="/">← Повернутися на сайт</a>
+      </div>
+      <div class="login-visual" aria-hidden="true">
+        <div class="field-lines"></div>
+        <div class="score-preview">
+          <span>LIVE · FIELD 01</span>
+          <strong>11 <i>:</i> 08</strong>
+          <small>2ND HALF · 04:21</small>
+        </div>
+      </div>
+    </section>
+
+    <div class="admin-app" id="adminApp" hidden>
+      <aside class="admin-sidebar">
+        <a class="brand brand--dark" href="/"><span class="brand__mark"></span>FLAG SCORE</a>
+        <div class="admin-sidebar__event">
+          <span>ПОТОЧНИЙ ТУРНІР</span>
+          <strong id="adminEventName">ЧУФФ-Мікс 2026</strong>
+        </div>
+        <nav class="admin-nav" aria-label="Адмін-розділи">
+          <button type="button" data-section="overview" aria-current="page"><span>⌁</span> Огляд</button>
+          <button type="button" data-section="matches"><span>▦</span> Матчі</button>
+          <button type="button" data-section="teams"><span>◆</span> Команди</button>
+          <button type="button" data-section="settings"><span>⚙</span> Турнір і тексти</button>
+        </nav>
+        <div class="admin-sidebar__bottom">
+          <a href="/" target="_blank">Відкрити публічний сайт ↗</a>
+          <button type="button" id="logoutButton">Вийти</button>
+        </div>
+      </aside>
+
+      <main class="admin-main">
+        <header class="admin-header">
+          <div>
+            <span class="kicker" id="adminSectionKicker">CONTROL ROOM</span>
+            <h1 id="adminSectionTitle">Огляд турніру</h1>
+          </div>
+          <div class="admin-header__actions">
+            <span class="save-state" id="saveState">Усі зміни збережено</span>
+            <button class="button button--primary" id="saveButton" type="button">Зберегти зміни</button>
+          </div>
+        </header>
+        <div class="admin-mobile-nav" id="adminMobileNav"></div>
+        <section class="admin-content" id="adminContent" aria-live="polite"></section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/admin.js"></script>
+  </body>
+</html>

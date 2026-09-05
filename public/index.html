@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0d10" />
+    <meta name="description" content="Live-center ЧУФФ-Мікс 2026: рахунки, розклад і турнірна таблиця." />
+    <title>ЧУФФ-Мікс 2026 · Live Center</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="shell topbar__inner">
+        <a class="brand" href="#live" aria-label="FLAG SCORE — на головну">
+          <span class="brand__mark" aria-hidden="true"></span>
+          <span id="brandName">FLAG SCORE</span>
+        </a>
+        <div class="event-meta event-meta--desktop">
+          <span id="eventEyebrow">ЧЕМПІОНАТ УКРАЇНИ · 2026</span>
+          <span class="live-label"><i></i><span data-i18n="onAir">НАЖИВО</span></span>
+        </div>
+        <nav class="topnav" aria-label="Додаткова навігація">
+          <button class="topnav__link" type="button" data-info="rules" data-i18n="rules">Правила</button>
+          <button class="topnav__link" type="button" data-info="regulations" data-i18n="regulations">Регламент</button>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero shell" aria-labelledby="eventTitle">
+        <div class="hero__copy">
+          <div class="event-meta event-meta--mobile">
+            <span id="eventEyebrowMobile">ЧЕМПІОНАТ УКРАЇНИ · 2026</span>
+          </div>
+          <h1 id="eventTitle">ЧУФФ-Мікс 2026</h1>
+          <p id="eventDescription">Рахунки наживо, розклад і турнірна таблиця змішаного дивізіону в одному місці.</p>
+        </div>
+        <div class="hero__details" aria-label="Інформація про турнір">
+          <div><span data-i18n="when">Коли</span><strong id="eventDates">12 вересня з 11:00 · 13 вересня з 09:00</strong></div>
+          <div><span data-i18n="where">Де</span><strong id="eventVenue"><a href="https://maps.app.goo.gl/SdcT7nBRSaUqjQb68" target="_blank" rel="noopener noreferrer">Житомир · вул. Коростишівська, 15</a></strong></div>
+        </div>
+      </section>
+
+      <div class="subnav" aria-label="Навігація по live center">
+        <div class="shell subnav__inner">
+          <div class="tabs" role="tablist" aria-label="Розділи">
+            <button class="tab" id="tab-live" type="button" role="tab" data-tab="live" aria-selected="true">
+              <span class="tab__signal" aria-hidden="true"></span><span data-i18n="live">Наживо</span>
+            </button>
+            <button class="tab" id="tab-standings" type="button" role="tab" data-tab="standings" aria-selected="false">
+              <span data-i18n="standings">Таблиці</span>
+            </button>
+            <button class="tab" id="tab-schedule" type="button" role="tab" data-tab="schedule" aria-selected="false">
+              <span data-i18n="schedule">Розклад</span>
+            </button>
+          </div>
+          <div class="language" role="group" aria-label="Мова">
+            <button type="button" data-lang="uk" aria-pressed="true">УКР</button>
+            <button type="button" data-lang="en" aria-pressed="false">ENG</button>
+          </div>
+        </div>
+      </div>
+
+      <section class="shell content" id="content" aria-live="polite" aria-busy="true">
+        <div class="loading-state">
+          <span class="loader" aria-hidden="true"></span>
+          <p>Завантажуємо турнір…</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="shell footer__inner">
+        <a class="brand brand--footer" href="#live"><span class="brand__mark"></span>FLAG SCORE</a>
+        <p data-i18n="footer">Один турнір. Усі рахунки. Наживо.</p>
+        <a class="admin-link" href="/admin">Адмін-панель <span aria-hidden="true">↗</span></a>
+      </div>
+    </footer>
+
+    <nav class="mobile-nav" aria-label="Мобільна навігація">
+      <button type="button" data-tab="live"><span class="mobile-nav__icon">●</span><span data-i18n="live">Наживо</span></button>
+      <button type="button" data-tab="standings"><span class="mobile-nav__icon">≡</span><span data-i18n="standings">Таблиці</span></button>
+      <button type="button" data-tab="schedule"><span class="mobile-nav__icon">▦</span><span data-i18n="schedule">Розклад</span></button>
+    </nav>
+
+    <dialog class="info-dialog" id="infoDialog">
+      <div class="info-dialog__top">
+        <div>
+          <span class="kicker" id="dialogKicker">FLAG FOOTBALL</span>
+          <h2 id="dialogTitle">Правила гри</h2>
+        </div>
+        <button class="icon-button" id="closeDialog" type="button" aria-label="Закрити">×</button>
+      </div>
+      <div class="info-dialog__body" id="dialogBody"></div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

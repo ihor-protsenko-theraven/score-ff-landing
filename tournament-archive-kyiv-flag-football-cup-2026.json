@@ -1,0 +1,324 @@
+{
+  "meta": {
+    "name": "Kyiv Flag Football Cup",
+    "shortName": "FLAG SCORE",
+    "eyebrow": "КУБОК УКРАЇНИ · 2026",
+    "description": "Рахунки наживо, розклад та турнірні таблиці в одному місці.",
+    "venue": "Київ · Стадіон «Темп»",
+    "dates": "5–6 вересня 2026",
+    "updatedAt": "2026-09-05T07:45:18.414Z"
+  },
+  "divisions": [
+    {
+      "id": "open",
+      "name": "OPEN",
+      "nameEn": "OPEN"
+    },
+    {
+      "id": "women",
+      "name": "ЖІНОЧИЙ",
+      "nameEn": "WOMEN'S"
+    }
+  ],
+  "teams": [
+    {
+      "id": "lynx",
+      "name": "LYNX",
+      "short": "LYNX",
+      "division": "open",
+      "color": "#3f7891"
+    },
+    {
+      "id": "nxt",
+      "name": "NXT",
+      "short": "NXT",
+      "division": "open",
+      "color": "#e79c8d"
+    },
+    {
+      "id": "odesa",
+      "name": "Odesa Ultimate",
+      "short": "ODS",
+      "division": "open",
+      "color": "#9ec55d"
+    },
+    {
+      "id": "skyforce",
+      "name": "SkyForce",
+      "short": "SF",
+      "division": "open",
+      "color": "#171a3d"
+    },
+    {
+      "id": "vinwolves",
+      "name": "VinWolves",
+      "short": "VW",
+      "division": "open",
+      "color": "#b6292c"
+    },
+    {
+      "id": "wolves-w",
+      "name": "Вовчиці",
+      "short": "ВОВ",
+      "division": "women",
+      "color": "#d53027"
+    },
+    {
+      "id": "galas",
+      "name": "GALAS",
+      "short": "GLS",
+      "division": "women",
+      "color": "#b74a87"
+    },
+    {
+      "id": "lynx-w",
+      "name": "LYNX Women",
+      "short": "LWX",
+      "division": "women",
+      "color": "#55a0b7"
+    },
+    {
+      "id": "skyforce-w",
+      "name": "SkyForce Women",
+      "short": "SFW",
+      "division": "women",
+      "color": "#202451"
+    }
+  ],
+  "matches": [
+    {
+      "id": "open-01",
+      "division": "open",
+      "homeTeamId": "lynx",
+      "awayTeamId": "nxt",
+      "homeScore": 10,
+      "awayScore": 8,
+      "status": "finished",
+      "date": "2026-09-05",
+      "time": "08:00",
+      "field": "Поле 1",
+      "round": "Груповий етап",
+      "clock": "00:00"
+    },
+    {
+      "id": "open-02",
+      "division": "open",
+      "homeTeamId": "skyforce",
+      "awayTeamId": "vinwolves",
+      "homeScore": 7,
+      "awayScore": 11,
+      "status": "finished",
+      "date": "2026-09-05",
+      "time": "08:00",
+      "field": "Поле 2",
+      "round": "Груповий етап",
+      "clock": "00:00"
+    },
+    {
+      "id": "women-01",
+      "division": "women",
+      "homeTeamId": "lynx-w",
+      "awayTeamId": "wolves-w",
+      "homeScore": 5,
+      "awayScore": 8,
+      "status": "finished",
+      "date": "2026-09-05",
+      "time": "08:10",
+      "field": "Поле 3",
+      "round": "Груповий етап",
+      "clock": "00:00"
+    },
+    {
+      "id": "open-03",
+      "division": "open",
+      "homeTeamId": "nxt",
+      "awayTeamId": "skyforce",
+      "homeScore": 8,
+      "awayScore": 5,
+      "status": "live",
+      "date": "2026-09-05",
+      "time": "09:30",
+      "field": "Поле 1",
+      "round": "Груповий етап",
+      "clock": "31:52",
+      "period": "2 половина",
+      "possessionTeamId": "nxt",
+      "lastPlay": "#44 Arsen Ihnatiuk · пас #25 Tymofii Topchiiev"
+    },
+    {
+      "id": "open-04",
+      "division": "open",
+      "homeTeamId": "vinwolves",
+      "awayTeamId": "lynx",
+      "homeScore": 11,
+      "awayScore": 11,
+      "status": "live",
+      "date": "2026-09-05",
+      "time": "09:30",
+      "field": "Поле 2",
+      "round": "Груповий етап",
+      "clock": "00:47",
+      "period": "2 половина",
+      "possessionTeamId": "lynx",
+      "lastPlay": "#69 Oleh Krochak · пас #17 Yurii Humennyi"
+    },
+    {
+      "id": "women-02",
+      "division": "women",
+      "homeTeamId": "galas",
+      "awayTeamId": "skyforce-w",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled",
+      "date": "2026-09-05",
+      "time": "10:45",
+      "field": "Поле 1",
+      "round": "Груповий етап",
+      "clock": "40:00"
+    },
+    {
+      "id": "women-03",
+      "division": "women",
+      "homeTeamId": "lynx-w",
+      "awayTeamId": "skyforce-w",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled",
+      "date": "2026-09-05",
+      "time": "10:45",
+      "field": "Поле 2",
+      "round": "Груповий етап",
+      "clock": "40:00"
+    },
+    {
+      "id": "open-05",
+      "division": "open",
+      "homeTeamId": "nxt",
+      "awayTeamId": "odesa",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled",
+      "date": "2026-09-05",
+      "time": "12:00",
+      "field": "Поле 1",
+      "round": "Груповий етап",
+      "clock": "40:00"
+    },
+    {
+      "id": "open-06",
+      "division": "open",
+      "homeTeamId": "lynx",
+      "awayTeamId": "skyforce",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled",
+      "date": "2026-09-05",
+      "time": "12:00",
+      "field": "Поле 2",
+      "round": "Груповий етап",
+      "clock": "40:00"
+    },
+    {
+      "id": "women-04",
+      "division": "women",
+      "homeTeamId": "wolves-w",
+      "awayTeamId": "galas",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled",
+      "date": "2026-09-05",
+      "time": "13:15",
+      "field": "Поле 3",
+      "round": "Груповий етап",
+      "clock": "40:00"
+    },
+    {
+      "id": "open-07",
+      "division": "open",
+      "homeTeamId": "odesa",
+      "awayTeamId": "vinwolves",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled",
+      "date": "2026-09-05",
+      "time": "14:30",
+      "field": "Поле 1",
+      "round": "Груповий етап",
+      "clock": "40:00"
+    },
+    {
+      "id": "open-08",
+      "division": "open",
+      "homeTeamId": "lynx",
+      "awayTeamId": "odesa",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled",
+      "date": "2026-09-05",
+      "time": "15:45",
+      "field": "Поле 2",
+      "round": "Груповий етап",
+      "clock": "40:00"
+    },
+    {
+      "id": "women-05",
+      "division": "women",
+      "homeTeamId": "skyforce-w",
+      "awayTeamId": "wolves-w",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled",
+      "date": "2026-09-06",
+      "time": "09:00",
+      "field": "Поле 1",
+      "round": "Півфінал 1",
+      "clock": "40:00"
+    },
+    {
+      "id": "women-06",
+      "division": "women",
+      "homeTeamId": "galas",
+      "awayTeamId": "lynx-w",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled",
+      "date": "2026-09-06",
+      "time": "09:00",
+      "field": "Поле 2",
+      "round": "Півфінал 2",
+      "clock": "40:00"
+    },
+    {
+      "id": "open-09",
+      "division": "open",
+      "homeTeamId": "vinwolves",
+      "awayTeamId": "odesa",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled",
+      "date": "2026-09-06",
+      "time": "10:20",
+      "field": "Поле 1",
+      "round": "Півфінал",
+      "clock": "40:00"
+    },
+    {
+      "id": "open-10",
+      "division": "open",
+      "homeTeamId": "lynx",
+      "awayTeamId": "nxt",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled",
+      "date": "2026-09-06",
+      "time": "12:45",
+      "field": "Поле 1",
+      "round": "Фінал",
+      "clock": "40:00"
+    }
+  ],
+  "content": {
+    "rules": "Флаг-футбол — безконтактна версія американського футболу. Замість захвату захисник зриває стрічку-флаг з пояса гравця.\n\nКоманда має чотири спроби, щоб пройти половину поля, і ще чотири — щоб занести тачдаун. Тачдаун приносить 6 очок. Після нього команда може виконати реалізацію на 1 або 2 очки.\n\nМатч складається з двох половин. Точний регламент часу, тайм-аутів і овертайму визначає організатор турніру.",
+    "regulations": "Груповий етап проходить за круговою системою. За перемогу команда отримує 1 турнірну перемогу, за поразку — 1 поразку.\n\nМісця визначаються за кількістю перемог, далі — за різницею очок і кількістю набраних очок.\n\nДо плей-оф виходять команди згідно із сіткою дивізіону. Рішення головного судді щодо ігрових епізодів є остаточним."
+  }
+}

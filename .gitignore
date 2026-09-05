@@ -1,0 +1,9 @@
+node_modules/
+.vercel/
+.playwright-cli/
+.env
+.env.local
+*.tmp
+
+.vercel
+.env*
