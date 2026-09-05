@@ -12,11 +12,20 @@
   <body class="admin-body">
     <section class="login-screen" id="loginScreen">
       <div class="login-card">
-        <a class="brand brand--dark" href="/"> <span class="brand__mark"></span>FLAG SCORE</a>
+        <a class="brand brand--dark" href="/">
+          <span class="brand__mark">
+            <img class="brand__logo-svg" src="/favicon.svg" alt="" width="64" height="64" />
+          </span>
+          <div class="brand__text-group">
+            <span class="brand__name">FLAG SCORE</span>
+            <span class="brand__sport-badge">FLAG FOOTBALL 5v5</span>
+          </div>
+        </a>
         <span class="kicker">CONTROL ROOM</span>
         <h1>Керуйте турніром без зайвого шуму.</h1>
         <p>Оновлюйте рахунок, статус матчу, розклад і склад учасників. Зміни одразу з’являться на публічній сторінці.</p>
         <form id="loginForm" class="login-form">
+          <input class="visually-hidden" name="username" type="text" autocomplete="username" value="admin" readonly tabindex="-1" aria-label="Користувач" />
           <label>
             Пароль адміністратора
             <input id="passwordInput" name="password" type="password" autocomplete="current-password" required placeholder="Введіть пароль" />
@@ -30,15 +39,23 @@
         <div class="field-lines"></div>
         <div class="score-preview">
           <span>LIVE · FIELD 01</span>
-          <strong>11 <i>:</i> 08</strong>
-          <small>2ND HALF · 04:21</small>
+          <strong>18 <i>:</i> 12</strong>
+          <small>FLAG PULL DEFENSE · 05:42</small>
         </div>
       </div>
     </section>
 
     <div class="admin-app" id="adminApp" hidden>
       <aside class="admin-sidebar">
-        <a class="brand brand--dark" href="/"><span class="brand__mark"></span>FLAG SCORE</a>
+        <a class="brand brand--dark" href="/">
+          <span class="brand__mark">
+            <img class="brand__logo-svg" src="/favicon.svg" alt="" width="64" height="64" />
+          </span>
+          <div class="brand__text-group">
+            <span class="brand__name">FLAG SCORE</span>
+            <span class="brand__sport-badge">CONTROL ROOM</span>
+          </div>
+        </a>
         <div class="admin-sidebar__event">
           <span>ПОТОЧНИЙ ТУРНІР</span>
           <strong id="adminEventName">ЧУФФ-Мікс 2026</strong>

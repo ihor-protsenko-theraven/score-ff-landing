@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -83,7 +83,19 @@ test('the server delivers the public application shell', async () => {
     assert.equal(response.status, 200);
     assert.match(await response.text(), /Score app/);
     assert.match(response.headers.get('content-type'), /text\/html/);
+    assert.doesNotMatch(response.headers.get('content-security-policy'), /https:\/\/fonts\./);
+    assert.match(response.headers.get('content-security-policy'), /font-src 'self'/);
   });
+});
+
+test('the public and admin shells avoid render-blocking third-party fonts', async () => {
+  const [publicShell, adminShell] = await Promise.all([
+    readFile(path.resolve('public/index.html'), 'utf8'),
+    readFile(path.resolve('public/admin.html'), 'utf8'),
+  ]);
+
+  assert.doesNotMatch(publicShell, /fonts\.googleapis\.com|fonts\.gstatic\.com/);
+  assert.doesNotMatch(adminShell, /fonts\.googleapis\.com|fonts\.gstatic\.com/);
 });
 
 test('the admin password can be verified without changing tournament data', async () => {

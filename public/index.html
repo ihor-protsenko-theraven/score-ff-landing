@@ -12,9 +12,14 @@
   <body>
     <header class="topbar">
       <div class="shell topbar__inner">
-        <a class="brand" href="#live" aria-label="FLAG SCORE — на головну">
-          <span class="brand__mark" aria-hidden="true"></span>
-          <span id="brandName">FLAG SCORE</span>
+        <a class="brand" href="#live">
+          <span class="brand__mark" aria-hidden="true">
+            <img class="brand__logo-svg" src="/favicon.svg" alt="" width="64" height="64" />
+          </span>
+          <div class="brand__text-group">
+            <span id="brandName" class="brand__name">FLAG SCORE</span>
+            <span class="brand__sport-badge">FLAG FOOTBALL 5v5</span>
+          </div>
         </a>
         <div class="event-meta event-meta--desktop">
           <span id="eventEyebrow">ЧЕМПІОНАТ УКРАЇНИ · 2026</span>
@@ -45,13 +50,13 @@
       <div class="subnav" aria-label="Навігація по live center">
         <div class="shell subnav__inner">
           <div class="tabs" role="tablist" aria-label="Розділи">
-            <button class="tab" id="tab-live" type="button" role="tab" data-tab="live" aria-selected="true">
+            <button class="tab" id="tab-live" type="button" role="tab" data-tab="live" aria-selected="true" aria-controls="content" tabindex="0">
               <span class="tab__signal" aria-hidden="true"></span><span data-i18n="live">Наживо</span>
             </button>
-            <button class="tab" id="tab-standings" type="button" role="tab" data-tab="standings" aria-selected="false">
+            <button class="tab" id="tab-standings" type="button" role="tab" data-tab="standings" aria-selected="false" aria-controls="content" tabindex="-1">
               <span data-i18n="standings">Таблиці</span>
             </button>
-            <button class="tab" id="tab-schedule" type="button" role="tab" data-tab="schedule" aria-selected="false">
+            <button class="tab" id="tab-schedule" type="button" role="tab" data-tab="schedule" aria-selected="false" aria-controls="content" tabindex="-1">
               <span data-i18n="schedule">Розклад</span>
             </button>
           </div>
@@ -62,7 +67,7 @@
         </div>
       </div>
 
-      <section class="shell content" id="content" aria-live="polite" aria-busy="true">
+      <section class="shell content" id="content" role="tabpanel" aria-labelledby="tab-live" aria-live="polite" aria-busy="true" tabindex="0">
         <div class="loading-state">
           <span class="loader" aria-hidden="true"></span>
           <p>Завантажуємо турнір…</p>
@@ -72,7 +77,15 @@
 
     <footer class="footer">
       <div class="shell footer__inner">
-        <a class="brand brand--footer" href="#live"><span class="brand__mark"></span>FLAG SCORE</a>
+        <a class="brand brand--footer" href="#live">
+          <span class="brand__mark">
+            <img class="brand__logo-svg" src="/favicon.svg" alt="" width="64" height="64" />
+          </span>
+          <div class="brand__text-group">
+            <span class="brand__name">FLAG SCORE</span>
+            <span class="brand__sport-badge">FLAG FOOTBALL UKRAINE</span>
+          </div>
+        </a>
         <p data-i18n="footer">Один турнір. Усі рахунки. Наживо.</p>
         <a class="admin-link" href="/admin">Адмін-панель <span aria-hidden="true">↗</span></a>
       </div>
@@ -87,7 +100,7 @@
     <dialog class="info-dialog" id="infoDialog">
       <div class="info-dialog__top">
         <div>
-          <span class="kicker" id="dialogKicker">FLAG FOOTBALL</span>
+          <span class="kicker" id="dialogKicker">FLAG FOOTBALL 5v5</span>
           <h2 id="dialogTitle">Правила гри</h2>
         </div>
         <button class="icon-button" id="closeDialog" type="button" aria-label="Закрити">×</button>

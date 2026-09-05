@@ -1,5 +1,127 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="FLAG SCORE">
-  <rect width="64" height="64" rx="14" fill="#0b0d10"/>
-  <path d="M24 10h28L40 32H12z" fill="#e83f80"/>
-  <path d="M12 32h28L28 54H4z" fill="#b8f34b"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Flag Football Score">
+  <defs>
+    <!-- Background stadium glow -->
+    <radialGradient id="ff-bg" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#141c2e"/>
+      <stop offset="70%" stop-color="#07090e"/>
+      <stop offset="100%" stop-color="#040508"/>
+    </radialGradient>
+
+    <!-- Football leather texture -->
+    <linearGradient id="ff-leather" x1="15%" y1="10%" x2="85%" y2="90%">
+      <stop offset="0%" stop-color="#f57c28"/>
+      <stop offset="25%" stop-color="#cc5210"/>
+      <stop offset="70%" stop-color="#993806"/>
+      <stop offset="100%" stop-color="#541b02"/>
+    </linearGradient>
+
+    <!-- Neon Lime Flag Ribbon -->
+    <linearGradient id="ff-flag-lime" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d9ff66"/>
+      <stop offset="50%" stop-color="#b8f34b"/>
+      <stop offset="100%" stop-color="#76c900"/>
+    </linearGradient>
+    <linearGradient id="ff-flag-lime-dark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a2e22c"/>
+      <stop offset="100%" stop-color="#559900"/>
+    </linearGradient>
+
+    <!-- Neon Pink Flag Ribbon -->
+    <linearGradient id="ff-flag-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff5294"/>
+      <stop offset="50%" stop-color="#ff2d78"/>
+      <stop offset="100%" stop-color="#c21352"/>
+    </linearGradient>
+    <linearGradient id="ff-flag-pink-dark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e01861"/>
+      <stop offset="100%" stop-color="#910b3b"/>
+    </linearGradient>
+
+    <!-- Belt Clip Socket -->
+    <linearGradient id="ff-clip" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="50%" stop-color="#cbd5e1"/>
+      <stop offset="100%" stop-color="#475569"/>
+    </linearGradient>
+
+    <!-- Drop shadows -->
+    <filter id="ff-shadow-ball" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.75"/>
+    </filter>
+    <filter id="ff-shadow-flag" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="-1" dy="2" stdDeviation="2.5" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <!-- Crest background -->
+  <rect width="64" height="64" rx="16" fill="url(#ff-bg)"/>
+  <rect width="62" height="62" x="1" y="1" rx="15" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="1"/>
+
+  <!-- Field yard hash markings subtle background watermark -->
+  <path d="M6 14 H14 M6 22 H11 M6 30 H14 M6 38 H11 M6 46 H14 M6 54 H11" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+  <path d="M58 14 H50 M58 22 H53 M58 30 H50 M58 38 H53 M58 46 H50 M58 54 H53" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+
+  <!-- FLAG RIBBONS (Dynamic Flag Football Belt Flags) -->
+  <!-- Flag 1: Hot Pink (Back Ribbon) -->
+  <g filter="url(#ff-shadow-flag)">
+    <!-- Main flutter facet -->
+    <path d="M22 34 Q17 42 12 51 L6 59 L12 59 Q17 50 22 41 Z" fill="url(#ff-flag-pink)"/>
+    <!-- Fold / 3D shadow facet -->
+    <path d="M22 34 Q20 38 18 43 L12 51 Q17 42 22 34 Z" fill="url(#ff-flag-pink-dark)"/>
+    <!-- Angled flag tail cut -->
+    <polygon points="6,59 12,59 9,56" fill="#7a0831"/>
+  </g>
+
+  <!-- Flag 2: Neon Lime (Front Ribbon) -->
+  <g filter="url(#ff-shadow-flag)">
+    <!-- Main flutter facet -->
+    <path d="M27 36 Q22 45 17 55 L11 63 L18 63 Q23 53 28 43 Z" fill="url(#ff-flag-lime)"/>
+    <!-- Fold / 3D shadow facet -->
+    <path d="M27 36 Q24 41 22 46 L17 55 Q22 45 27 36 Z" fill="url(#ff-flag-lime-dark)"/>
+    <!-- Angled flag tail cut -->
+    <polygon points="11,63 18,63 15,60" fill="#478000"/>
+  </g>
+
+  <!-- Belt Ring / Flag Socket Clip -->
+  <rect x="20" y="31" width="10" height="5" rx="1.5" transform="rotate(-30 25 33.5)" fill="url(#ff-clip)" stroke="#ffffff" stroke-width="0.75"/>
+
+  <!-- THE FOOTBALL (Tilted pro ball with stitches, laces and grip stripes) -->
+  <g transform="rotate(-30 34 23)" filter="url(#ff-shadow-ball)">
+    <!-- Ball body -->
+    <path d="M12 23 C18 14, 26 12, 34 12 C42 12, 50 14, 56 23 C50 32, 42 34, 34 34 C26 34, 18 32, 12 23 Z" 
+          fill="url(#ff-leather)" 
+          stroke="#3d1300" 
+          stroke-width="1.2"/>
+
+    <!-- 3D Top Highlight curve -->
+    <path d="M17 21 C22 15, 28 13.5, 34 13.5 C40 13.5, 46 15, 51 21" 
+          fill="none" 
+          stroke="rgba(255,255,255,0.35)" 
+          stroke-width="1.5" 
+          stroke-linecap="round"/>
+
+    <!-- Left Grip Ring (Stripe) -->
+    <path d="M19 16 C21 20.5, 21 25.5, 19 30" 
+          fill="none" 
+          stroke="#ffffff" 
+          stroke-width="2.2" 
+          stroke-linecap="round"/>
+
+    <!-- Right Grip Ring (Stripe) -->
+    <path d="M49 16 C47 20.5, 47 25.5, 49 30" 
+          fill="none" 
+          stroke="#ffffff" 
+          stroke-width="2.2" 
+          stroke-linecap="round"/>
+
+    <!-- Center Seam Line -->
+    <line x1="23" y1="23" x2="45" y2="23" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
+
+    <!-- Classic 5 Laces (Cross-Stitches) -->
+    <line x1="26" y1="19" x2="26" y2="27" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
+    <line x1="30" y1="18.5" x2="30" y2="27.5" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
+    <line x1="34" y1="18" x2="34" y2="28" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="38" y1="18.5" x2="38" y2="27.5" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
+    <line x1="42" y1="19" x2="42" y2="27" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
+  </g>
 </svg>

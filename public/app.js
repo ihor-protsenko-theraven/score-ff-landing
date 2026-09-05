@@ -15,26 +15,28 @@ const copy = {
     live: 'Наживо', standings: 'Таблиці', schedule: 'Розклад', footer: 'Один турнір. Усі рахунки. Наживо.',
     onFields: 'На полях', liveGames: 'матчі тривають', noLive: 'Зараз немає активних матчів',
     noLiveHint: 'Розклад матчів з’явиться після публікації організаторами — сторінка оновлюється автоматично.', nextGames: 'Наступні ігри',
-    attack: 'атака', half: '2 половина', winChance: 'Шанси на перемогу', lastPlay: 'Останній поінт',
+    attack: 'атака', period: 'Період', gameClock: 'Ігровий час', possessionLabel: 'Володіння', gameState: 'Стан матчу', notSet: 'Не вказано', lastPlay: 'Остання дія',
     played: 'зіграно', team: 'Команда', games: 'І', record: 'В–П', difference: '+/−', points: 'Очки',
     playoff: 'Сітка плей-оф формується за підсумками групового етапу.', list: 'Список', byFields: 'За полями',
     gamesCount: 'ігор', scheduled: 'Заплановано', liveStatus: 'Наживо', halftime: 'Перерва', finished: 'Завершено',
     info: 'Інформація', rulesTitle: 'Правила гри', regulationsTitle: 'Регламент турніру',
     loadError: 'Не вдалося завантажити дані турніру.', retry: 'Спробувати ще раз', versus: 'проти',
     noSchedule: 'Розклад готується', noScheduleHint: 'Матчі з’являться тут щойно організатори опублікують сітку.',
+    teamsTitle: 'Команди турніру', teamsCount: 'учасників',
   },
   en: {
     onAir: 'LIVE', rules: 'Rules', regulations: 'Regulations', when: 'When', where: 'Where',
     live: 'Live', standings: 'Standings', schedule: 'Schedule', footer: 'One tournament. Every score. Live.',
     onFields: 'On the fields', liveGames: 'games in progress', noLive: 'No games are live right now',
     noLiveHint: 'The match schedule will appear after it is published — this page refreshes automatically.', nextGames: 'Next games',
-    attack: 'possession', half: '2nd half', winChance: 'Win probability', lastPlay: 'Latest point',
+    attack: 'possession', period: 'Period', gameClock: 'Game clock', possessionLabel: 'Possession', gameState: 'Game state', notSet: 'Not set', lastPlay: 'Latest play',
     played: 'played', team: 'Team', games: 'GP', record: 'W–L', difference: '+/−', points: 'Points',
     playoff: 'The playoff bracket will be formed after the group stage.', list: 'List', byFields: 'By field',
     gamesCount: 'games', scheduled: 'Scheduled', liveStatus: 'Live', halftime: 'Halftime', finished: 'Final',
     info: 'Information', rulesTitle: 'Game rules', regulationsTitle: 'Tournament regulations',
     loadError: 'Tournament data could not be loaded.', retry: 'Try again', versus: 'vs',
     noSchedule: 'Schedule in progress', noScheduleHint: 'Matches will appear here as soon as the organizers publish the draw.',
+    teamsTitle: 'Tournament Teams', teamsCount: 'teams',
   },
 };
 
@@ -43,6 +45,12 @@ const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, (character)
   '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
 })[character]);
 const safeColor = (value) => /^#[0-9a-f]{6}$/i.test(value || '') ? value : '#30343d';
+const contrastText = (value) => {
+  const color = safeColor(value).slice(1).match(/.{2}/g).map((part) => Number.parseInt(part, 16) / 255);
+  const [red, green, blue] = color.map((channel) => channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4);
+  const luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+  return (luminance + 0.05) / 0.05 >= 4.5 ? '#07090e' : '#ffffff';
+};
 const team = (id) => ui.data.teams.find((item) => item.id === id) || { id, name: 'TBD', short: 'TBD', color: '#30343d' };
 const division = (id) => ui.data.divisions.find((item) => item.id === id) || { id, name: id, nameEn: id };
 const divisionName = (id) => ui.language === 'en' ? division(id).nameEn : division(id).name;
@@ -69,8 +77,16 @@ function statusText(status) {
   return ({ scheduled: t('scheduled'), live: t('liveStatus'), halftime: t('halftime'), finished: t('finished') })[status] || status;
 }
 
+function countLabel(count, ukForms, enForms) {
+  if (ui.language === 'en') return `${count} ${count === 1 ? enForms[0] : enForms[1]}`;
+  const lastTwo = count % 100;
+  const last = count % 10;
+  const form = lastTwo >= 11 && lastTwo <= 14 ? ukForms[2] : last === 1 ? ukForms[0] : last >= 2 && last <= 4 ? ukForms[1] : ukForms[2];
+  return `${count} ${form}`;
+}
+
 function teamBadge(item, small = false) {
-  return `<span class="team-badge${small ? ' team-badge--small' : ''}" style="--team-color:${safeColor(item.color)}">${escapeHtml(item.short)}</span>`;
+  return `<span class="team-badge${small ? ' team-badge--small' : ''}" style="--team-color:${safeColor(item.color)};--team-ink:${contrastText(item.color)}">${escapeHtml(item.short)}</span>`;
 }
 
 function sectionHeading(title, meta = '', action = '') {
@@ -81,13 +97,16 @@ function infoLinks() {
   return `<div class="info-links"><span>${escapeHtml(t('info'))}</span><button type="button" data-info="rules">${escapeHtml(t('rulesTitle'))}</button><button type="button" data-info="regulations">${escapeHtml(t('regulationsTitle'))}</button></div>`;
 }
 
+function flagFootballIcon() {
+  return '<img class="ff-vector-logo" src="/favicon.svg" alt="" width="64" height="64">';
+}
+
 function liveCard(match) {
   const home = team(match.homeTeamId);
   const away = team(match.awayTeamId);
-  const total = Math.max(1, match.homeScore + match.awayScore);
-  const homeChance = match.homeScore === match.awayScore ? 50 : Math.max(18, Math.min(82, Math.round((match.homeScore / total) * 100)));
-  const awayChance = 100 - homeChance;
-  const status = match.status === 'halftime' ? t('halftime') : `${escapeHtml(match.period || t('half'))} · ${escapeHtml(match.clock || '--:--')}`;
+  const period = match.status === 'halftime' ? t('halftime') : (match.period || t('notSet'));
+  const gameClock = match.clock || '--:--';
+  const possession = match.possessionTeamId ? team(match.possessionTeamId).name : t('notSet');
   return `
     <article class="live-card">
       <div class="live-card__top">
@@ -98,21 +117,21 @@ function liveCard(match) {
         <div class="scoreboard__team">
           ${teamBadge(home)}
           <strong title="${escapeHtml(home.name)}">${escapeHtml(home.name)}</strong>
-          <span class="possession">${match.possessionTeamId === home.id ? `◀ ${escapeHtml(t('attack'))}` : '&nbsp;'}</span>
+          <span class="possession">${match.possessionTeamId === home.id ? `<span class="possession-chip">◀ ${escapeHtml(t('attack'))}</span>` : '&nbsp;'}</span>
         </div>
         <div class="scoreboard__score"><span>${match.homeScore}</span><i>:</i><span>${match.awayScore}</span></div>
         <div class="scoreboard__team">
           ${teamBadge(away)}
           <strong title="${escapeHtml(away.name)}">${escapeHtml(away.name)}</strong>
-          <span class="possession">${match.possessionTeamId === away.id ? `${escapeHtml(t('attack'))} ▶` : '&nbsp;'}</span>
+          <span class="possession">${match.possessionTeamId === away.id ? `<span class="possession-chip">${escapeHtml(t('attack'))} ▶</span>` : '&nbsp;'}</span>
         </div>
       </div>
-      <div class="live-card__clock"><span>${escapeHtml(status)}</span></div>
-      <div class="win-meter">
-        <div class="win-meter__labels"><span>${escapeHtml(home.short)} ${homeChance}%</span><span>${escapeHtml(t('winChance'))}</span><span>${awayChance}% ${escapeHtml(away.short)}</span></div>
-        <div class="win-meter__track"><span class="win-meter__home" style="width:${homeChance}%"></span><span class="win-meter__away"></span></div>
-      </div>
-      <div class="live-card__last"><span>${escapeHtml(t('lastPlay'))}</span><strong>${escapeHtml(match.lastPlay || '—')}</strong></div>
+      <dl class="game-state" aria-label="${escapeHtml(t('gameState'))}">
+        <div><dt>${escapeHtml(t('period'))}</dt><dd>${escapeHtml(period)}</dd></div>
+        <div><dt>${escapeHtml(t('gameClock'))}</dt><dd>${escapeHtml(gameClock)}</dd></div>
+        <div><dt>${escapeHtml(t('possessionLabel'))}</dt><dd>${escapeHtml(possession)}</dd></div>
+      </dl>
+      ${match.lastPlay ? `<div class="live-card__last"><span>${escapeHtml(t('lastPlay'))}</span><strong>${escapeHtml(match.lastPlay)}</strong></div>` : ''}
     </article>`;
 }
 
@@ -129,12 +148,37 @@ function upcomingCard(match) {
 function renderLive() {
   const live = sortedMatches().filter((match) => ['live', 'halftime'].includes(match.status));
   const upcoming = sortedMatches().filter((match) => match.status === 'scheduled').slice(0, 3);
+  const teamsList = ui.data?.teams || [];
   return `
     <section class="section-block">
-      ${sectionHeading(t('onFields'), `${live.length} ${t('liveGames')}`)}
-      ${live.length ? `<div class="live-grid">${live.map(liveCard).join('')}</div>` : `<div class="empty-state"><h3>${escapeHtml(t('noLive'))}</h3><p>${escapeHtml(t('noLiveHint'))}</p></div>`}
+      ${sectionHeading(t('onFields'), countLabel(live.length, ['матч наживо', 'матчі наживо', 'матчів наживо'], ['live game', 'live games']))}
+      ${live.length ? `<div class="live-grid${live.length === 1 ? ' live-grid--single' : ''}">${live.map(liveCard).join('')}</div>` : `
+        <div class="empty-state">
+          <div class="empty-state__flag-badge">
+            <span class="ff-emblem-halo"></span>
+            ${flagFootballIcon()}
+          </div>
+          <div class="empty-state__sport-tag">FLAG FOOTBALL · 5v5 MIX</div>
+          <h3>${escapeHtml(t('noLive'))}</h3>
+          <p>${escapeHtml(t('noLiveHint'))}</p>
+        </div>`}
     </section>
-    ${upcoming.length ? `<section class="section-block">${sectionHeading(t('nextGames'), `${upcoming.length} ${t('gamesCount')}`)}<div class="upcoming-strip">${upcoming.map(upcomingCard).join('')}</div></section>` : ''}
+    ${upcoming.length ? `<section class="section-block">${sectionHeading(t('nextGames'), countLabel(upcoming.length, ['гра', 'гри', 'ігор'], ['game', 'games']))}<div class="upcoming-strip">${upcoming.map(upcomingCard).join('')}</div></section>` : ''}
+    ${!live.length && teamsList.length ? `
+      <section class="section-block">
+        ${sectionHeading(t('teamsTitle'), countLabel(teamsList.length, ['учасник', 'учасники', 'учасників'], ['team', 'teams']))}
+        <div class="teams-grid">
+          ${teamsList.map((tm) => `
+            <div class="team-showcase-card">
+              ${teamBadge(tm)}
+              <div class="team-showcase-card__info">
+                <strong>${escapeHtml(tm.name)}</strong>
+                <span>${escapeHtml(divisionName(tm.division))} · 5v5 Mix</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </section>` : ''}
     ${infoLinks()}`;
 }
 
@@ -180,7 +224,7 @@ function scheduleList() {
   const groups = groupBy(sortedMatches(), (match) => match.date);
   return Object.entries(groups).map(([date, matches]) => `
     <section class="schedule-day">
-      ${sectionHeading(formatDate(date), `${matches.length} ${t('gamesCount')}`)}
+      ${sectionHeading(formatDate(date), countLabel(matches.length, ['гра', 'гри', 'ігор'], ['game', 'games']))}
       <div class="schedule-list">${matches.map(scheduleRow).join('')}</div>
     </section>`).join('');
 }
@@ -214,9 +258,28 @@ function updateChrome() {
   document.querySelectorAll('[data-lang]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.lang === ui.language)));
   document.querySelectorAll('[data-tab]').forEach((button) => {
     const active = button.dataset.tab === ui.activeTab;
-    if (button.getAttribute('role') === 'tab') button.setAttribute('aria-selected', String(active));
+    if (button.getAttribute('role') === 'tab') {
+      button.setAttribute('aria-selected', String(active));
+      button.tabIndex = active ? 0 : -1;
+    }
     button.toggleAttribute('aria-current', active);
   });
+  content.setAttribute('aria-labelledby', `tab-${ui.activeTab}`);
+}
+
+function activateTab(tab, { focus = false, keepScroll = false } = {}) {
+  if (!['live', 'standings', 'schedule'].includes(tab)) return;
+  ui.activeTab = tab;
+  history.replaceState(null, '', `#${ui.activeTab}`);
+  render();
+  if (focus) document.querySelector(`#tab-${ui.activeTab}`)?.focus();
+  if (keepScroll) return;
+  const subnav = document.querySelector('.subnav');
+  const topbar = document.querySelector('.topbar');
+  const offset = topbar ? topbar.offsetHeight : 68;
+  if (subnav && window.scrollY > subnav.offsetTop - offset) {
+    scrollTo({ top: Math.max(0, subnav.offsetTop - offset), behavior: 'smooth' });
+  }
 }
 
 function updateMeta() {
@@ -274,10 +337,7 @@ async function loadData({ silent = false } = {}) {
 document.addEventListener('click', (event) => {
   const tabButton = event.target.closest('[data-tab]');
   if (tabButton) {
-    ui.activeTab = tabButton.dataset.tab;
-    history.replaceState(null, '', `#${ui.activeTab}`);
-    render();
-    scrollTo({ top: document.querySelector('.subnav').offsetTop, behavior: 'smooth' });
+    activateTab(tabButton.dataset.tab);
     return;
   }
 
@@ -309,6 +369,21 @@ document.addEventListener('click', (event) => {
   }
 
   if (event.target.closest('[data-retry]')) loadData();
+});
+
+document.querySelector('.tabs').addEventListener('keydown', (event) => {
+  const tabs = [...document.querySelectorAll('.tab[role="tab"]')];
+  const currentIndex = tabs.indexOf(event.target.closest('[role="tab"]'));
+  if (currentIndex < 0) return;
+  const nextIndex = ({
+    ArrowRight: (currentIndex + 1) % tabs.length,
+    ArrowLeft: (currentIndex - 1 + tabs.length) % tabs.length,
+    Home: 0,
+    End: tabs.length - 1,
+  })[event.key];
+  if (nextIndex === undefined) return;
+  event.preventDefault();
+  activateTab(tabs[nextIndex].dataset.tab, { focus: true, keepScroll: true });
 });
 
 document.querySelector('#closeDialog').addEventListener('click', () => infoDialog.close());
