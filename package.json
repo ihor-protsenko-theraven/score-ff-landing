@@ -7,8 +7,8 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "test": "node --test",
-    "deploy": "vercel --prod",
-    "deploy:preview": "vercel"
+    "deploy": "npx vercel --prod",
+    "deploy:preview": "npx vercel"
   },
   "dependencies": {
     "@vercel/blob": "^2.3.0"
