@@ -195,7 +195,13 @@ function renderSection() {
   document.querySelector('#adminSectionKicker').textContent = kicker;
   document.querySelector('#adminSectionTitle').textContent = title;
   document.querySelector('#adminEventName').textContent = state.data.meta.name;
-  document.querySelectorAll('[data-section]').forEach((button) => button.toggleAttribute('aria-current', button.dataset.section === state.section));
+  document.querySelectorAll('[data-section]').forEach((button) => {
+    if (button.dataset.section === state.section) {
+      button.setAttribute('aria-current', 'page');
+    } else {
+      button.removeAttribute('aria-current');
+    }
+  });
   adminContent.innerHTML = ({ overview: renderOverview, matches: renderMatches, teams: renderTeams, settings: renderSettings })[state.section]();
 }
 
