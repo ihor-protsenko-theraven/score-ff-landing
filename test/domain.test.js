@@ -100,3 +100,17 @@ test('a safety must belong to a team in the match', () => {
 
   assert.throws(() => validateTournament(tournament), /сейфті.*команд/i);
 });
+
+test('half duration must be a positive whole number of minutes', () => {
+  const tournament = tournamentWithTouchdown({ id: 'td-1', teamId: 'wolves', scorer: 'Player 7' });
+  tournament.settings = { halfDurationMinutes: 15.5 };
+
+  assert.throws(() => validateTournament(tournament), /тривалість половини/i);
+});
+
+test('a team cannot use more than two timeouts in one half', () => {
+  const tournament = tournamentWithTouchdown({ id: 'td-1', teamId: 'wolves', scorer: 'Player 7' });
+  tournament.matches[0].timeouts = { 1: { home: 3, away: 0 }, 2: { home: 0, away: 0 } };
+
+  assert.throws(() => validateTournament(tournament), /тайм.?аут/i);
+});

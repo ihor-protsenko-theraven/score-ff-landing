@@ -3037,15 +3037,23 @@ textarea:focus {
     position: sticky;
     z-index: 14;
     top: 4.75rem;
+    display: block;
+    border-bottom: 0.0625rem solid var(--line);
+    background: rgba(14, 19, 29, 0.96);
+    backdrop-filter: blur(1rem);
+    -webkit-backdrop-filter: blur(1rem);
+  }
+  .admin-mobile-sections {
     display: flex;
     overflow-x: auto;
     gap: 0.5rem;
-    padding: 0.625rem 1.125rem;
-    border-bottom: 0.0625rem solid var(--line);
-    background: rgba(14, 19, 29, 0.96);
+    padding: 0.625rem 1.125rem 0.5rem;
     scrollbar-width: none;
   }
-  .admin-mobile-nav button {
+  .admin-mobile-sections::-webkit-scrollbar {
+    display: none;
+  }
+  .admin-mobile-sections button {
     min-height: 2.125rem;
     flex: 0 0 auto;
     padding: 0 0.875rem;
@@ -3060,10 +3068,38 @@ textarea:focus {
     letter-spacing: 0.04em;
     text-transform: uppercase;
   }
-  .admin-mobile-nav button[aria-current="page"] {
+  .admin-mobile-sections button[aria-current="page"] {
     border-color: var(--neon-lime);
     background: var(--bg-surface-elevated);
     color: white;
+  }
+  .admin-mobile-tools {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    padding: 0 1.125rem 0.625rem;
+  }
+  .admin-mobile-tools a {
+    display: inline-flex;
+    min-height: 2.375rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    border: 0.0625rem solid rgba(184, 243, 75, 0.28);
+    border-radius: var(--radius-sm);
+    background: rgba(184, 243, 75, 0.07);
+    color: white;
+    font-family: var(--display);
+    font-size: 0.6875rem;
+    font-style: italic;
+    font-weight: 700;
+    letter-spacing: 0.025em;
+    text-align: center;
+    text-transform: uppercase;
+  }
+  .admin-mobile-tools a:last-child {
+    border-color: rgba(0, 210, 255, 0.32);
+    background: rgba(0, 210, 255, 0.08);
   }
   .admin-content {
     padding: 1.5rem 1.125rem 5rem;
@@ -3417,6 +3453,7 @@ textarea:focus {
 
 .judge-clock-card,
 .judge-state-card,
+.judge-timeout-card,
 .judge-score-card {
   border: 0.0625rem solid var(--line);
   border-radius: var(--radius-lg);
@@ -3444,6 +3481,101 @@ textarea:focus {
 .judge-score-card {
   grid-column: 1 / -1;
   padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.judge-timeout-card {
+  grid-column: 1 / -1;
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.judge-timeout-card > p {
+  margin: 0.375rem 0 1rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.judge-timeout-card h2 b {
+  color: var(--neon-lime);
+  font: inherit;
+}
+
+.judge-timeout-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.judge-timeout-team {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.125rem 0.75rem;
+  padding: 1rem;
+  border: 0.0625rem solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-base);
+}
+
+.judge-timeout-team__name {
+  overflow: hidden;
+  color: white;
+  font-family: var(--display);
+  font-size: 0.875rem;
+  font-style: italic;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.judge-timeout-team output {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  color: var(--neon-gold);
+  font-family: var(--display);
+  font-size: 2.75rem;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.judge-timeout-team small {
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+}
+
+.judge-timeout-actions {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 0.5rem;
+  margin-top: 0.625rem;
+}
+
+.judge-timeout-actions button {
+  min-height: 3.25rem;
+  padding: 0.5rem;
+  border: 0.0625rem solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-elevated);
+  color: white;
+  cursor: pointer;
+  font-family: var(--display);
+  font-size: 0.75rem;
+  font-style: italic;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.judge-timeout-actions button[data-timeout-action="use"] {
+  border-color: rgba(255, 183, 3, 0.55);
+  background: rgba(255, 183, 3, 0.12);
+  color: var(--neon-gold);
+}
+
+.judge-timeout-actions button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
 .judge-section-title span {
@@ -3783,6 +3915,7 @@ textarea:focus {
 
   .judge-clock-card,
   .judge-state-card,
+  .judge-timeout-card,
   .judge-score-card,
   .judge-match-status {
     grid-column: 1;
@@ -3833,6 +3966,36 @@ textarea:focus {
 
   .judge-score-card {
     padding: 0.875rem;
+  }
+
+  .judge-timeout-card {
+    padding: 0.75rem;
+  }
+
+  .judge-timeout-card > p {
+    display: none;
+  }
+
+  .judge-timeout-grid {
+    gap: 0.5rem;
+    margin-top: 0.625rem;
+  }
+
+  .judge-timeout-team {
+    padding: 0.75rem 0.625rem;
+  }
+
+  .judge-timeout-team output {
+    font-size: 2.25rem;
+  }
+
+  .judge-timeout-actions {
+    grid-template-columns: 1fr;
+    gap: 0.375rem;
+  }
+
+  .judge-timeout-actions button {
+    min-height: 3rem;
   }
 
   .judge-score-hint {

@@ -110,6 +110,13 @@ test('the public, admin, and judge shells avoid render-blocking third-party font
   assert.doesNotMatch(judgeShell, /fonts\.googleapis\.com|fonts\.gstatic\.com/);
 });
 
+test('the mobile admin navigation exposes public and judge destinations', async () => {
+  const adminShell = await readFile(path.resolve('public/admin.html'), 'utf8');
+
+  assert.match(adminShell, /class="admin-mobile-tools"/);
+  assert.match(adminShell, /class="admin-mobile-tools"[\s\S]*href="\/"[\s\S]*href="\/judge"/);
+});
+
 test('the admin password can be verified without changing tournament data', async () => {
   await withServer(async (baseUrl) => {
     const rejected = await fetch(`${baseUrl}/api/admin/verify`, {
@@ -218,6 +225,40 @@ test('a judge update rejects an invalid down value', async () => {
 
     assert.equal(updateResponse.status, 400);
     assert.match((await updateResponse.json()).error, /даун/i);
+  });
+});
+
+test('a judge session synchronizes timeout usage for both halves', async () => {
+  await withServer(async (baseUrl) => {
+    const tournament = structuredClone(fixture);
+    tournament.settings = { halfDurationMinutes: 15 };
+    tournament.matches = [{
+      id: 'match-1', division: 'open', homeTeamId: 'wolves', awayTeamId: 'lynx',
+      homeScore: 0, awayScore: 0, status: 'live', date: '2026-09-12', time: '10:00', field: 'Поле 1', clock: '15:00', down: 1,
+    }];
+    await fetch(`${baseUrl}/api/tournament`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Password': 'secret' },
+      body: JSON.stringify(tournament),
+    });
+    const loginResponse = await fetch(`${baseUrl}/api/judge/verify`, {
+      method: 'POST',
+      headers: { 'X-Judge-Password': 'referee' },
+    });
+    const { token } = await loginResponse.json();
+
+    const updateResponse = await fetch(`${baseUrl}/api/tournament`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        matchId: 'match-1',
+        patch: { timeouts: { 1: { home: 1, away: 2 }, 2: { home: 0, away: 1 } } },
+      }),
+    });
+    const body = await (await fetch(`${baseUrl}/api/tournament`)).json();
+
+    assert.equal(updateResponse.status, 200);
+    assert.deepEqual(body.matches[0].timeouts, { 1: { home: 1, away: 2 }, 2: { home: 0, away: 1 } });
   });
 });
 

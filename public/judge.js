@@ -1,4 +1,11 @@
-import { formatClock, parseClock, scoreAfter } from './judge-state.js';
+import {
+  changeTimeoutUsage,
+  formatClock,
+  halfDurationSeconds,
+  parseClock,
+  remainingTimeouts,
+  scoreAfter,
+} from './judge-state.js';
 
 const judgeLogin = document.querySelector('#judgeLogin');
 const judgeApp = document.querySelector('#judgeApp');
@@ -7,6 +14,8 @@ const judgeEmpty = document.querySelector('#judgeEmpty');
 const matchSelect = document.querySelector('#judgeMatchSelect');
 const clockOutput = document.querySelector('#judgeClock');
 const clockToggle = document.querySelector('#judgeClockToggle');
+const clockReset = document.querySelector('#judgeResetClock');
+const timeoutCard = document.querySelector('#judgeTimeoutCard');
 const syncIndicator = document.querySelector('#judgeSync');
 const toast = document.querySelector('#judgeToast');
 
@@ -127,12 +136,28 @@ function renderClock() {
   clockOutput.classList.toggle('is-running', state.clockRunning);
   clockToggle.setAttribute('aria-pressed', String(state.clockRunning));
   clockToggle.innerHTML = state.clockRunning ? '<span aria-hidden="true">Ⅱ</span> Пауза' : '<span aria-hidden="true">▶</span> Старт';
+  clockReset.textContent = `Поставити ${formatClock(halfDurationSeconds(state.data))}`;
 }
 
 function renderPressedState(selector, value, attribute) {
   document.querySelectorAll(selector).forEach((button) => {
     button.setAttribute('aria-pressed', String(button.dataset[attribute] === String(value)));
   });
+}
+
+function renderTimeouts(match, homeName, awayName) {
+  const period = String(match.period || '1');
+  timeoutCard.hidden = !['1', '2'].includes(period);
+  if (timeoutCard.hidden) return;
+  document.querySelector('#judgeTimeoutPeriod').textContent = `${period} половина`;
+  document.querySelector('#judgeHomeTimeoutName').textContent = homeName;
+  document.querySelector('#judgeAwayTimeoutName').textContent = awayName;
+  for (const side of ['home', 'away']) {
+    const remaining = remainingTimeouts(match, period, side);
+    document.querySelector(`#judge${side === 'home' ? 'Home' : 'Away'}Timeouts`).textContent = remaining;
+    timeoutCard.querySelector(`[data-timeout-side="${side}"][data-timeout-action="use"]`).disabled = remaining === 0;
+    timeoutCard.querySelector(`[data-timeout-side="${side}"][data-timeout-action="undo"]`).disabled = remaining === 2;
+  }
 }
 
 function renderMatch() {
@@ -154,6 +179,7 @@ function renderMatch() {
   renderPressedState('[data-down]', match.down || 1, 'down');
   renderPressedState('[data-period]', match.period || '1', 'period');
   renderPressedState('[data-match-status]', match.status, 'matchStatus');
+  renderTimeouts(match, homeName, awayName);
   document.querySelectorAll('[data-score-side]').forEach((button) => {
     const scoringTeam = button.dataset.scoreSide === 'home' ? homeName : awayName;
     button.setAttribute('aria-label', `${button.dataset.play}, ${scoringTeam}`);
@@ -162,7 +188,7 @@ function renderMatch() {
 }
 
 function prepareSelectedClock() {
-  state.clockSeconds = parseClock(selectedMatch()?.clock || '20:00');
+  state.clockSeconds = parseClock(selectedMatch()?.clock || formatClock(halfDurationSeconds(state.data)));
   state.clockStartedSeconds = state.clockSeconds;
   state.clockStartedAt = Date.now();
   state.lastClockSync = state.clockSeconds;
@@ -180,6 +206,7 @@ function judgePatch() {
     period: match.period || '1',
     status: match.status,
     lastPlay: match.lastPlay || '',
+    timeouts: match.timeouts,
   };
 }
 
@@ -337,10 +364,12 @@ clockToggle.addEventListener('click', toggleClock);
 document.querySelectorAll('[data-clock-delta]').forEach((button) => {
   button.addEventListener('click', () => adjustClock(Number(button.dataset.clockDelta)));
 });
-document.querySelector('#judgeResetClock').addEventListener('click', () => {
-  if (state.clockSeconds !== 0 && !confirm('Поставити таймер на 20:00?')) return;
+clockReset.addEventListener('click', () => {
+  const resetSeconds = halfDurationSeconds(state.data);
+  const resetClock = formatClock(resetSeconds);
+  if (state.clockSeconds !== 0 && !confirm(`Поставити таймер на ${resetClock}?`)) return;
   stopClock(false);
-  state.clockSeconds = 20 * 60;
+  state.clockSeconds = resetSeconds;
   state.clockStartedSeconds = state.clockSeconds;
   selectedMatch().clock = formatClock(state.clockSeconds);
   renderClock();
@@ -362,6 +391,24 @@ document.querySelector('#judgePeriods').addEventListener('click', (event) => {
   selectedMatch().period = button.dataset.period;
   renderMatch();
   queueSync();
+});
+
+timeoutCard.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-timeout-action]');
+  if (!button) return;
+  const match = selectedMatch();
+  const period = String(match.period || '1');
+  const delta = button.dataset.timeoutAction === 'use' ? 1 : -1;
+  if (!changeTimeoutUsage(match, period, button.dataset.timeoutSide, delta)) {
+    showToast('Ліміт тайм-аутів для цієї половини вичерпано', 'error');
+    return;
+  }
+  stopClock(false);
+  const timeoutTeam = teamName(button.dataset.timeoutSide === 'home' ? match.homeTeamId : match.awayTeamId);
+  match.lastPlay = `${delta > 0 ? 'Тайм-аут' : 'Скасовано тайм-аут'} · ${timeoutTeam} · ${period} половина`;
+  renderMatch();
+  queueSync();
+  navigator.vibrate?.(30);
 });
 
 document.querySelector('.judge-scoreboard').addEventListener('click', (event) => {

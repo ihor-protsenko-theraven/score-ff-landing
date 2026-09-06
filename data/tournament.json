@@ -7,7 +7,7 @@
     "venue": "Житомир · вул. Коростишівська, 15",
     "venueUrl": "https://maps.app.goo.gl/SdcT7nBRSaUqjQb68",
     "dates": "12 вересня з 11:00 · 13 вересня з 09:00",
-    "updatedAt": "2026-09-06T21:19:35.526Z"
+    "updatedAt": "2026-09-06T21:25:16.471Z"
   },
   "divisions": [
     {
@@ -68,7 +68,7 @@
       "awayTeamId": "vovky",
       "homeScore": 24,
       "awayScore": 11,
-      "status": "finished",
+      "status": "live",
       "date": "2026-09-06",
       "time": "10:00",
       "field": "Поле 1",
@@ -98,7 +98,7 @@
       "down": 1,
       "period": "1",
       "lastPlay": "Тачдаун · Бізони",
-      "judgeUpdatedAt": "2026-09-06T21:19:35.526Z"
+      "judgeUpdatedAt": "2026-09-06T21:25:16.470Z"
     }
   ],
   "content": {

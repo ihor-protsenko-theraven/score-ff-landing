@@ -13,3 +13,33 @@ export function formatClock(value) {
 export function scoreAfter(currentScore, delta) {
   return Math.max(0, (Number(currentScore) || 0) + Number(delta || 0));
 }
+
+export const DEFAULT_HALF_DURATION_MINUTES = 20;
+export const TIMEOUTS_PER_HALF = 2;
+
+export function halfDurationSeconds(tournament = {}) {
+  const minutes = tournament.settings?.halfDurationMinutes;
+  return (Number.isInteger(minutes) && minutes > 0 ? minutes : DEFAULT_HALF_DURATION_MINUTES) * 60;
+}
+
+function usedTimeouts(match, period, side) {
+  if (!['1', '2'].includes(String(period)) || !['home', 'away'].includes(side)) return 0;
+  const value = match?.timeouts?.[String(period)]?.[side];
+  return Number.isInteger(value) ? Math.min(TIMEOUTS_PER_HALF, Math.max(0, value)) : 0;
+}
+
+export function remainingTimeouts(match, period, side) {
+  return TIMEOUTS_PER_HALF - usedTimeouts(match, period, side);
+}
+
+export function changeTimeoutUsage(match, period, side, delta) {
+  const half = String(period);
+  if (!match || !['1', '2'].includes(half) || !['home', 'away'].includes(side)) return false;
+  const current = usedTimeouts(match, half, side);
+  const next = current + Number(delta || 0);
+  if (!Number.isInteger(next) || next < 0 || next > TIMEOUTS_PER_HALF) return false;
+  match.timeouts ||= {};
+  match.timeouts[half] ||= { home: 0, away: 0 };
+  match.timeouts[half][side] = next;
+  return true;
+}

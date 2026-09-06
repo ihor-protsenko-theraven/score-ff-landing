@@ -82,6 +82,34 @@
             </div>
           </section>
 
+          <section class="judge-timeout-card" id="judgeTimeoutCard" aria-labelledby="judgeTimeoutTitle">
+            <div class="judge-section-title">
+              <span>TEAM TIMEOUTS</span>
+              <h2 id="judgeTimeoutTitle">Тайм-аути · <b id="judgeTimeoutPeriod">1 половина</b></h2>
+            </div>
+            <p>По 2 на кожну команду в кожній половині. Натискання зупиняє ігровий час.</p>
+            <div class="judge-timeout-grid">
+              <article class="judge-timeout-team" data-timeout-team="home">
+                <span class="judge-timeout-team__name" id="judgeHomeTimeoutName">Команда 1</span>
+                <output id="judgeHomeTimeouts">2</output>
+                <small>залишилось</small>
+                <div class="judge-timeout-actions">
+                  <button type="button" data-timeout-side="home" data-timeout-action="undo">↶ Скасувати</button>
+                  <button type="button" data-timeout-side="home" data-timeout-action="use">Тайм-аут</button>
+                </div>
+              </article>
+              <article class="judge-timeout-team" data-timeout-team="away">
+                <span class="judge-timeout-team__name" id="judgeAwayTimeoutName">Команда 2</span>
+                <output id="judgeAwayTimeouts">2</output>
+                <small>залишилось</small>
+                <div class="judge-timeout-actions">
+                  <button type="button" data-timeout-side="away" data-timeout-action="undo">↶ Скасувати</button>
+                  <button type="button" data-timeout-side="away" data-timeout-action="use">Тайм-аут</button>
+                </div>
+              </article>
+            </div>
+          </section>
+
           <section class="judge-score-card" aria-labelledby="judgeScoreTitle">
             <div class="judge-section-title"><span>QUICK SCORE</span><h2 id="judgeScoreTitle">Рахунок</h2></div>
             <p class="judge-score-hint">Тут лише офіційний рахунок. Авторів занесень паралельно додає статистик в адмінці.</p>

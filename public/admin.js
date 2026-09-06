@@ -7,6 +7,7 @@ import {
   removeTouchdown,
   scoringEvents,
 } from './match-events.js';
+import { formatClock, halfDurationSeconds, remainingTimeouts } from './judge-state.js';
 
 const loginScreen = document.querySelector('#loginScreen');
 const adminApp = document.querySelector('#adminApp');
@@ -157,11 +158,17 @@ function renderOverview() {
     </section>`;
 }
 
+function timeoutSummary(match) {
+  const period = String(match.period || '1');
+  if (!['1', '2'].includes(period)) return 'Тайм-аути —';
+  return `ТО ${remainingTimeouts(match, period, 'home')}:${remainingTimeouts(match, period, 'away')}`;
+}
+
 function quickScore(match) {
   const eventCount = scoringEvents(match).length;
   return `
     <article class="quick-score">
-      <div class="quick-score__meta"><strong>${escapeHtml(match.field)}</strong><span>${escapeHtml(divisionName(match.division))} · ${escapeHtml(match.clock || '--:--')} · Даун ${match.down || '—'}</span></div>
+      <div class="quick-score__meta"><strong>${escapeHtml(match.field)}</strong><span>${escapeHtml(divisionName(match.division))} · ${escapeHtml(match.clock || '--:--')} · Даун ${match.down || '—'} · ${escapeHtml(timeoutSummary(match))}</span></div>
       <div class="quick-score__teams">
         <div class="score-stepper"><span class="score-stepper__team">${escapeHtml(teamName(match.homeTeamId))}</span><button type="button" data-bump="home" data-match-id="${escapeHtml(match.id)}" data-delta="-1" aria-label="Мінус очко ${escapeHtml(teamName(match.homeTeamId))}">−</button><strong>${match.homeScore}</strong><button type="button" data-bump="home" data-match-id="${escapeHtml(match.id)}" data-delta="1" aria-label="Плюс очко ${escapeHtml(teamName(match.homeTeamId))}">+</button></div>
         <span class="score-divider">:</span>
@@ -227,7 +234,17 @@ function renderTeams() {
 
 function renderSettings() {
   const meta = state.data.meta;
+  const halfMinutes = halfDurationSeconds(state.data) / 60;
   return `
+    <section class="admin-panel">
+      <div class="panel-heading"><div><span>РЕГЛАМЕНТ МАТЧУ</span><h2>Час гри</h2></div></div>
+      <div class="panel-body">
+        <p class="settings-note">Тривалість однієї половини. Суддівська панель використовує її для скидання таймера, а нові матчі отримують цей час автоматично. Поточний відлік активного матчу не змінюється.</p>
+        <div class="form-grid form-grid--compact">
+          <label>Хвилин у половині<input type="number" min="1" max="180" step="1" inputmode="numeric" value="${halfMinutes}" data-entity="settings" data-field="halfDurationMinutes"></label>
+        </div>
+      </div>
+    </section>
     <section class="admin-panel">
       <div class="panel-heading"><div><span>ПУБЛІЧНА СТОРІНКА</span><h2>Про турнір</h2></div></div>
       <div class="panel-body">
@@ -268,13 +285,14 @@ function renderSection() {
 }
 
 function buildMobileNav() {
-  document.querySelector('#adminMobileNav').innerHTML = Object.entries(sectionMeta).map(([id, [, title]]) => `<button type="button" data-section="${id}">${escapeHtml(title)}</button>`).join('');
+  document.querySelector('#adminMobileSections').innerHTML = Object.entries(sectionMeta).map(([id, [, title]]) => `<button type="button" data-section="${id}">${escapeHtml(title)}</button>`).join('');
 }
 
 async function fetchTournament() {
   const response = await fetch('/api/tournament', { cache: 'no-store' });
   if (!response.ok) throw new Error('Не вдалося завантажити турнір');
   state.data = await response.json();
+  state.data.settings ||= { halfDurationMinutes: halfDurationSeconds(state.data) / 60 };
 }
 
 async function refreshAdminFromServer() {
@@ -321,6 +339,7 @@ async function saveTournament() {
   try {
     const payload = {
       meta: state.data.meta,
+      settings: state.data.settings,
       divisions: state.data.divisions,
       teams: state.data.teams,
       matches: state.data.matches,
@@ -391,7 +410,7 @@ document.addEventListener('click', (event) => {
     const today = new Date().toISOString().slice(0, 10);
     state.data.matches.push({
       id: `match-${Date.now()}`, division: division.id, homeTeamId: teams[0].id, awayTeamId: teams[1].id,
-      homeScore: 0, awayScore: 0, status: 'scheduled', date: today, time: '10:00', field: 'Поле 1', round: 'Груповий етап', clock: '40:00', touchdowns: [], conversions: [], safeties: [],
+      homeScore: 0, awayScore: 0, status: 'scheduled', date: today, time: '10:00', field: 'Поле 1', round: 'Груповий етап', clock: formatClock(halfDurationSeconds(state.data)), touchdowns: [], conversions: [], safeties: [],
     });
     state.matchStatus = 'all';
     state.matchDivision = 'all';
@@ -461,9 +480,10 @@ document.addEventListener('input', (event) => {
   if (entity === 'match') target = state.data.matches.find((item) => item.id === id);
   if (entity === 'team') target = state.data.teams.find((item) => item.id === id);
   if (entity === 'meta') target = state.data.meta;
+  if (entity === 'settings') target = state.data.settings;
   if (entity === 'content') target = state.data.content;
   if (!target) return;
-  target[field] = ['homeScore', 'awayScore'].includes(field) ? Math.max(0, Number.parseInt(input.value, 10) || 0) : input.value;
+  target[field] = ['homeScore', 'awayScore', 'halfDurationMinutes'].includes(field) ? Math.max(0, Number.parseInt(input.value, 10) || 0) : input.value;
   markDirty();
 });
 
