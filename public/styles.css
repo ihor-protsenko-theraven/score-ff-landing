@@ -960,6 +960,108 @@ a {
   text-shadow: 0 0 0.625rem rgba(184, 243, 75, 0.28);
 }
 
+.touchdown-feed {
+  padding: 1.125rem 1.5rem 1.25rem;
+  border-top: 0.0625rem solid var(--line);
+  background: rgba(8, 11, 17, 0.38);
+}
+
+.touchdown-feed__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.touchdown-feed__heading h3 {
+  margin: 0;
+  color: var(--text-secondary);
+  font-family: var(--display);
+  font-size: 0.75rem;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.touchdown-feed__heading > span,
+.schedule-touchdowns summary span {
+  display: inline-grid;
+  min-width: 1.375rem;
+  height: 1.375rem;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  background: var(--neon-pink);
+  color: var(--text-inverse);
+  font-family: var(--display);
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.touchdown-feed__list {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.touchdown-event {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+  padding: 0.625rem 0.75rem;
+  border: 0.0625rem solid var(--line);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.touchdown-event__points {
+  display: grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  place-items: center;
+  border-radius: 50%;
+  background: #a94412;
+  color: white;
+  font-family: var(--display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 0.125rem rgba(255, 255, 255, 0.18);
+}
+
+.touchdown-event > div {
+  display: grid;
+  min-width: 0;
+  gap: 0.125rem;
+}
+
+.touchdown-event strong {
+  overflow: hidden;
+  color: white;
+  font-size: 0.8125rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.touchdown-event div span,
+.touchdown-event time {
+  color: var(--text-muted);
+  font-family: var(--display);
+  font-size: 0.6875rem;
+  font-style: italic;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.touchdown-event time {
+  color: var(--neon-lime);
+  white-space: nowrap;
+}
+
 .live-card__last {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -1327,6 +1429,31 @@ a {
   letter-spacing: -0.02em;
 }
 
+.schedule-touchdowns {
+  grid-column: 1 / -1;
+  padding-top: 0.75rem;
+  border-top: 0.0625rem solid var(--line);
+}
+
+.schedule-touchdowns summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: var(--display);
+  font-size: 0.75rem;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.schedule-touchdowns[open] summary {
+  margin-bottom: 0.75rem;
+  color: white;
+}
+
 .match-meta {
   display: flex;
   justify-content: flex-end;
@@ -1577,6 +1704,143 @@ a {
   border-color: var(--line-strong);
   background: rgba(255, 255, 255, 0.1);
   color: white;
+}
+
+.touchdown-dialog {
+  width: min(52rem, calc(100% - 2rem));
+}
+
+.touchdown-dialog__match {
+  margin: 0.375rem 0 0;
+  color: var(--text-secondary);
+  font-family: var(--display);
+  font-size: 0.875rem;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.touchdown-dialog__body {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  overflow-y: auto;
+  max-height: calc(100dvh - 12rem);
+}
+
+.touchdown-form {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-right: 0.0625rem solid var(--line);
+  background: rgba(8, 11, 17, 0.24);
+}
+
+.touchdown-form label {
+  display: grid;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.touchdown-form__hint {
+  margin: 0;
+  padding: 0.75rem;
+  border-left: 0.1875rem solid var(--neon-lime);
+  background: rgba(184, 243, 75, 0.07);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+
+.touchdown-form__error {
+  min-height: 1.125rem;
+  margin: -0.375rem 0;
+}
+
+.touchdown-admin-log {
+  min-width: 0;
+  padding: 1.5rem;
+}
+
+.touchdown-admin-log__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.touchdown-admin-log__heading h3 {
+  margin: 0;
+  color: white;
+  font-family: var(--display);
+  font-size: 1.125rem;
+  font-style: italic;
+  text-transform: uppercase;
+}
+
+.touchdown-admin-log__heading span {
+  display: grid;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  background: var(--neon-pink);
+  color: var(--text-inverse);
+  font-family: var(--display);
+  font-weight: 700;
+}
+
+.touchdown-admin-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 0;
+  border-bottom: 0.0625rem solid var(--line);
+}
+
+.touchdown-admin-item__ball {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border-radius: 50%;
+  background: #a94412;
+  color: white;
+  font-family: var(--display);
+  font-weight: 700;
+  box-shadow: inset 0 0 0 0.125rem rgba(255, 255, 255, 0.18);
+}
+
+.touchdown-admin-item > div {
+  display: grid;
+  min-width: 0;
+  gap: 0.1875rem;
+}
+
+.touchdown-admin-item strong {
+  overflow: hidden;
+  color: white;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.touchdown-admin-item div span,
+.touchdown-admin-empty {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.touchdown-admin-empty {
+  padding: 2rem 1rem;
+  border: 0.0625rem dashed var(--line-strong);
+  border-radius: var(--radius-sm);
+  text-align: center;
 }
 
 /* ==========================================================================
@@ -2284,7 +2548,23 @@ textarea:focus {
   grid-template-columns: 2rem 2.625rem 2rem;
   align-items: center;
   gap: 0.375rem;
+  min-width: 0;
   text-align: center;
+}
+
+.score-stepper__team {
+  overflow: hidden;
+  grid-column: 1 / -1;
+  color: var(--text-secondary);
+  font-family: var(--display);
+  font-size: 0.75rem;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .score-stepper:first-child {
@@ -2325,6 +2605,30 @@ textarea:focus {
 
 .quick-score select {
   min-height: 2.5rem;
+}
+
+.quick-score__actions {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.mini-button--touchdowns {
+  border-color: rgba(184, 243, 75, 0.32);
+  background: rgba(184, 243, 75, 0.08);
+  color: var(--neon-lime);
+  white-space: nowrap;
+}
+
+.mini-button--touchdowns span {
+  display: inline-grid;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  place-items: center;
+  margin-left: 0.25rem;
+  border-radius: var(--radius-pill);
+  background: var(--neon-lime);
+  color: var(--text-inverse);
+  font-size: 0.625rem;
 }
 
 .toolbar {
@@ -2400,6 +2704,11 @@ textarea:focus {
 .table-actions {
   display: flex;
   gap: 0.375rem;
+}
+
+.table-actions--vertical {
+  min-width: 7.5rem;
+  flex-direction: column;
 }
 
 .mini-button {
@@ -2515,7 +2824,7 @@ textarea:focus {
   .quick-score {
     grid-template-columns: 6.25rem minmax(0, 1fr);
   }
-  .quick-score > select {
+  .quick-score__actions {
     grid-column: 1 / -1;
   }
 }
@@ -2795,8 +3104,15 @@ textarea:focus {
   .score-stepper strong {
     font-size: 1.375rem;
   }
-  .quick-score > select {
+  .quick-score__actions {
     grid-column: auto;
+  }
+  .touchdown-dialog__body {
+    grid-template-columns: 1fr;
+  }
+  .touchdown-form {
+    border-right: 0;
+    border-bottom: 0.0625rem solid var(--line);
   }
   .filters {
     width: 100%;
@@ -2828,6 +3144,12 @@ textarea:focus {
 
   .game-state div {
     padding-inline: 0.625rem;
+  }
+  .touchdown-event {
+    grid-template-columns: auto auto minmax(0, 1fr);
+  }
+  .touchdown-event time {
+    grid-column: 3;
   }
 }
 

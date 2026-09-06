@@ -1,7 +1,16 @@
+import {
+  recordConversion,
+  recordTouchdown,
+  removeConversion,
+  removeTouchdown,
+  scoringEvents,
+} from './match-events.js';
+
 const loginScreen = document.querySelector('#loginScreen');
 const adminApp = document.querySelector('#adminApp');
 const adminContent = document.querySelector('#adminContent');
 const toast = document.querySelector('#toast');
+const touchdownDialog = document.querySelector('#touchdownDialog');
 
 const state = {
   data: null,
@@ -9,6 +18,7 @@ const state = {
   section: 'overview',
   matchStatus: 'all',
   matchDivision: 'all',
+  statsMatchId: null,
   dirty: false,
 };
 
@@ -71,6 +81,51 @@ function statusOptions(selected) {
   return Object.entries(labels).map(([value, label]) => `<option value="${value}" ${value === selected ? 'selected' : ''}>${label}</option>`).join('');
 }
 
+function selectedStatsMatch() {
+  return state.data?.matches.find((match) => match.id === state.statsMatchId);
+}
+
+function pointsLabel(points) {
+  const word = points === 1 ? 'очко' : (points === 2 ? 'очки' : 'очок');
+  return `${points} ${word}`;
+}
+
+function renderTouchdownDialog() {
+  const match = selectedStatsMatch();
+  if (!match) return touchdownDialog.close();
+  const home = teamName(match.homeTeamId);
+  const away = teamName(match.awayTeamId);
+  document.querySelector('#touchdownDialogMatch').textContent = `${home} ${match.homeScore} : ${match.awayScore} ${away}`;
+  document.querySelector('#touchdownTeamInput').innerHTML = [match.homeTeamId, match.awayTeamId]
+    .map((teamId) => `<option value="${escapeHtml(teamId)}">${escapeHtml(teamName(teamId))}</option>`)
+    .join('');
+  document.querySelector('#touchdownScorerInput').value = '';
+  document.querySelector('#touchdownClockInput').value = match.clock || '';
+  document.querySelector('#touchdownPeriodInput').value = ['1', '2', 'OT'].includes(String(match.period || '')) ? String(match.period) : '1';
+  document.querySelector('#touchdownFormError').textContent = '';
+
+  const events = scoringEvents(match).reverse();
+  document.querySelector('#touchdownLogCount').textContent = events.length;
+  document.querySelector('#touchdownLog').innerHTML = events.length ? events.map((scoringEvent) => {
+    const eventLabel = scoringEvent.type === 'touchdown' ? 'Тачдаун' : 'Реалізація';
+    const context = [`${eventLabel} · ${scoringEvent.points} оч.`, teamName(scoringEvent.teamId), scoringEvent.period ? `${scoringEvent.period === 'OT' ? 'овертайм' : `${scoringEvent.period} половина`}` : '', scoringEvent.clock || '']
+      .filter(Boolean)
+      .join(' · ');
+    return `<article class="touchdown-admin-item">
+      <span class="touchdown-admin-item__ball" aria-label="${pointsLabel(scoringEvent.points)}">${scoringEvent.points}</span>
+      <div><strong>${escapeHtml(scoringEvent.scorer)}</strong><span>${escapeHtml(context)}</span></div>
+      <button class="mini-button mini-button--danger" type="button" data-delete-scoring="${escapeHtml(scoringEvent.id)}" data-scoring-type="${scoringEvent.type}">Видалити</button>
+    </article>`;
+  }).join('') : '<div class="touchdown-admin-empty">Ще немає результативних дій.</div>';
+}
+
+function openTouchdownDialog(matchId) {
+  state.statsMatchId = matchId;
+  renderTouchdownDialog();
+  touchdownDialog.showModal();
+  document.querySelector('#touchdownScorerInput').focus();
+}
+
 function teamBadge(team) {
   const color = /^#[0-9a-f]{6}$/i.test(team?.color || '') ? team.color : '#30343d';
   return `<span class="team-badge team-badge--small" style="--team-color:${color}">${escapeHtml(team?.short || 'TBD')}</span>`;
@@ -101,15 +156,19 @@ function renderOverview() {
 }
 
 function quickScore(match) {
+  const eventCount = scoringEvents(match).length;
   return `
     <article class="quick-score">
       <div class="quick-score__meta"><strong>${escapeHtml(match.field)}</strong><span>${escapeHtml(divisionName(match.division))} · ${escapeHtml(match.clock || '--:--')}</span></div>
       <div class="quick-score__teams">
-        <div class="score-stepper"><button type="button" data-bump="home" data-match-id="${escapeHtml(match.id)}" data-delta="-1" aria-label="Мінус очко ${escapeHtml(teamName(match.homeTeamId))}">−</button><strong>${match.homeScore}</strong><button type="button" data-bump="home" data-match-id="${escapeHtml(match.id)}" data-delta="1" aria-label="Плюс очко ${escapeHtml(teamName(match.homeTeamId))}">+</button></div>
+        <div class="score-stepper"><span class="score-stepper__team">${escapeHtml(teamName(match.homeTeamId))}</span><button type="button" data-bump="home" data-match-id="${escapeHtml(match.id)}" data-delta="-1" aria-label="Мінус очко ${escapeHtml(teamName(match.homeTeamId))}">−</button><strong>${match.homeScore}</strong><button type="button" data-bump="home" data-match-id="${escapeHtml(match.id)}" data-delta="1" aria-label="Плюс очко ${escapeHtml(teamName(match.homeTeamId))}">+</button></div>
         <span class="score-divider">:</span>
-        <div class="score-stepper"><button type="button" data-bump="away" data-match-id="${escapeHtml(match.id)}" data-delta="-1" aria-label="Мінус очко ${escapeHtml(teamName(match.awayTeamId))}">−</button><strong>${match.awayScore}</strong><button type="button" data-bump="away" data-match-id="${escapeHtml(match.id)}" data-delta="1" aria-label="Плюс очко ${escapeHtml(teamName(match.awayTeamId))}">+</button></div>
+        <div class="score-stepper"><span class="score-stepper__team">${escapeHtml(teamName(match.awayTeamId))}</span><button type="button" data-bump="away" data-match-id="${escapeHtml(match.id)}" data-delta="-1" aria-label="Мінус очко ${escapeHtml(teamName(match.awayTeamId))}">−</button><strong>${match.awayScore}</strong><button type="button" data-bump="away" data-match-id="${escapeHtml(match.id)}" data-delta="1" aria-label="Плюс очко ${escapeHtml(teamName(match.awayTeamId))}">+</button></div>
       </div>
-      <select data-quick-status data-match-id="${escapeHtml(match.id)}" aria-label="Статус матчу">${statusOptions(match.status)}</select>
+      <div class="quick-score__actions">
+        <select data-quick-status data-match-id="${escapeHtml(match.id)}" aria-label="Статус матчу">${statusOptions(match.status)}</select>
+        <button class="mini-button mini-button--touchdowns" type="button" data-touchdowns-match="${escapeHtml(match.id)}">Статистика <span>${eventCount}</span></button>
+      </div>
     </article>`;
 }
 
@@ -136,6 +195,7 @@ function renderMatches() {
 }
 
 function matchRow(match) {
+  const eventCount = scoringEvents(match).length;
   return `<tr data-match-row="${escapeHtml(match.id)}">
     <td><div class="table-actions"><input type="date" value="${escapeHtml(match.date)}" data-entity="match" data-id="${escapeHtml(match.id)}" data-field="date" aria-label="Дата"><input type="time" value="${escapeHtml(match.time)}" data-entity="match" data-id="${escapeHtml(match.id)}" data-field="time" aria-label="Час"></div></td>
     <td><select data-entity="match" data-id="${escapeHtml(match.id)}" data-field="division" aria-label="Дивізіон">${state.data.divisions.map((item) => `<option value="${escapeHtml(item.id)}" ${item.id === match.division ? 'selected' : ''}>${escapeHtml(item.name)}</option>`).join('')}</select></td>
@@ -144,7 +204,7 @@ function matchRow(match) {
     <td><select data-entity="match" data-id="${escapeHtml(match.id)}" data-field="awayTeamId" aria-label="Гості">${matchTeamOptions(match, match.awayTeamId)}</select></td>
     <td><div class="table-actions"><input value="${escapeHtml(match.field)}" data-entity="match" data-id="${escapeHtml(match.id)}" data-field="field" aria-label="Поле"><input value="${escapeHtml(match.round || '')}" data-entity="match" data-id="${escapeHtml(match.id)}" data-field="round" aria-label="Раунд"></div></td>
     <td><select data-entity="match" data-id="${escapeHtml(match.id)}" data-field="status" aria-label="Статус">${statusOptions(match.status)}</select></td>
-    <td><button class="mini-button mini-button--danger" type="button" data-delete-match="${escapeHtml(match.id)}">Видалити</button></td>
+    <td><div class="table-actions table-actions--vertical"><button class="mini-button mini-button--touchdowns" type="button" data-touchdowns-match="${escapeHtml(match.id)}">Статистика <span>${eventCount}</span></button><button class="mini-button mini-button--danger" type="button" data-delete-match="${escapeHtml(match.id)}">Видалити</button></div></td>
   </tr>`;
 }
 
@@ -306,7 +366,7 @@ document.addEventListener('click', (event) => {
     const today = new Date().toISOString().slice(0, 10);
     state.data.matches.push({
       id: `match-${Date.now()}`, division: division.id, homeTeamId: teams[0].id, awayTeamId: teams[1].id,
-      homeScore: 0, awayScore: 0, status: 'scheduled', date: today, time: '10:00', field: 'Поле 1', round: 'Груповий етап', clock: '40:00',
+      homeScore: 0, awayScore: 0, status: 'scheduled', date: today, time: '10:00', field: 'Поле 1', round: 'Груповий етап', clock: '40:00', touchdowns: [], conversions: [],
     });
     state.matchStatus = 'all';
     state.matchDivision = 'all';
@@ -321,6 +381,27 @@ document.addEventListener('click', (event) => {
     state.data.matches = state.data.matches.filter((match) => match.id !== deleteMatchButton.dataset.deleteMatch);
     markDirty();
     renderSection();
+    return;
+  }
+
+  const touchdownButton = event.target.closest('[data-touchdowns-match]');
+  if (touchdownButton) {
+    openTouchdownDialog(touchdownButton.dataset.touchdownsMatch);
+    return;
+  }
+
+  const deleteScoringButton = event.target.closest('[data-delete-scoring]');
+  if (deleteScoringButton) {
+    const match = selectedStatsMatch();
+    if (!match) return;
+    if (deleteScoringButton.dataset.scoringType === 'conversion') {
+      removeConversion(match, deleteScoringButton.dataset.deleteScoring);
+    } else {
+      removeTouchdown(match, deleteScoringButton.dataset.deleteScoring);
+    }
+    markDirty();
+    renderSection();
+    renderTouchdownDialog();
     return;
   }
 
@@ -389,6 +470,36 @@ document.addEventListener('change', (event) => {
 });
 
 document.querySelector('#saveButton').addEventListener('click', saveTournament);
+document.querySelector('#touchdownForm').addEventListener('submit', (event) => {
+  event.preventDefault();
+  const match = selectedStatsMatch();
+  if (!match) return;
+  const form = new FormData(event.currentTarget);
+  try {
+    const eventType = form.get('eventType');
+    const input = {
+      teamId: form.get('teamId'),
+      scorer: form.get('scorer'),
+      clock: form.get('clock'),
+      period: form.get('period'),
+    };
+    if (eventType === 'touchdown') {
+      recordTouchdown(match, input);
+    } else {
+      recordConversion(match, { ...input, points: Number(eventType === 'conversion-2' ? 2 : 1) });
+    }
+    markDirty();
+    renderSection();
+    renderTouchdownDialog();
+    showToast('Результативну дію додано до статистики');
+  } catch (error) {
+    document.querySelector('#touchdownFormError').textContent = error.message;
+  }
+});
+document.querySelector('#closeTouchdownDialog').addEventListener('click', () => touchdownDialog.close());
+touchdownDialog.addEventListener('click', (event) => {
+  if (event.target === touchdownDialog) touchdownDialog.close();
+});
 document.querySelector('#logoutButton').addEventListener('click', () => {
   sessionStorage.removeItem('flag-score-admin');
   location.reload();

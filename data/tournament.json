@@ -7,7 +7,7 @@
     "venue": "Житомир · вул. Коростишівська, 15",
     "venueUrl": "https://maps.app.goo.gl/SdcT7nBRSaUqjQb68",
     "dates": "12 вересня з 11:00 · 13 вересня з 09:00",
-    "updatedAt": "2026-09-06T09:20:09.760Z"
+    "updatedAt": "2026-09-06T12:04:03.444Z"
   },
   "divisions": [
     {
@@ -62,102 +62,28 @@
   ],
   "matches": [
     {
-      "id": "match-1788686135940",
-      "division": "mixed",
-      "homeTeamId": "vovky",
-      "awayTeamId": "bizony",
-      "homeScore": 0,
-      "awayScore": 0,
-      "status": "scheduled",
-      "date": "2026-09-06",
-      "time": "10:00",
-      "field": "Поле 1",
-      "round": "Груповий етап",
-      "clock": "40:00"
-    },
-    {
-      "id": "match-1788686137012",
-      "division": "mixed",
-      "homeTeamId": "u15",
-      "awayTeamId": "levy",
-      "homeScore": 0,
-      "awayScore": 0,
-      "status": "scheduled",
-      "date": "2026-09-06",
-      "time": "10:00",
-      "field": "Поле 2",
-      "round": "Груповий етап",
-      "clock": "40:00"
-    },
-    {
-      "id": "match-1788686137372",
-      "division": "mixed",
-      "homeTeamId": "lisoruby",
-      "awayTeamId": "orly",
-      "homeScore": 0,
-      "awayScore": 0,
-      "status": "scheduled",
-      "date": "2026-09-06",
-      "time": "11:00",
-      "field": "Поле 1",
-      "round": "Груповий етап",
-      "clock": "40:00"
-    },
-    {
-      "id": "match-1788686169999",
-      "division": "mixed",
-      "homeTeamId": "bizony",
-      "awayTeamId": "u15",
-      "homeScore": 0,
-      "awayScore": 0,
-      "status": "scheduled",
-      "date": "2026-09-06",
-      "time": "11:00",
-      "field": "Поле 2",
-      "round": "Груповий етап",
-      "clock": "40:00"
-    },
-    {
-      "id": "match-1788686170591",
-      "division": "mixed",
-      "homeTeamId": "levy",
-      "awayTeamId": "lisoruby",
-      "homeScore": 0,
-      "awayScore": 0,
-      "status": "scheduled",
-      "date": "2026-09-06",
-      "time": "12:00",
-      "field": "Поле 1",
-      "round": "Груповий етап",
-      "clock": "40:00"
-    },
-    {
-      "id": "match-1788686171381",
-      "division": "mixed",
-      "homeTeamId": "vovky",
-      "awayTeamId": "levy",
-      "homeScore": 0,
-      "awayScore": 0,
-      "status": "scheduled",
-      "date": "2026-09-06",
-      "time": "12:00",
-      "field": "Поле 2",
-      "round": "Груповий етап",
-      "clock": "40:00"
-    },
-    {
-      "id": "match-1788686403134",
+      "id": "match-1788693407901",
       "division": "mixed",
       "homeTeamId": "bizony",
       "awayTeamId": "vovky",
-      "homeScore": 0,
+      "homeScore": 7,
       "awayScore": 0,
-      "status": "scheduled",
+      "status": "live",
       "date": "2026-09-06",
       "time": "10:00",
       "field": "Поле 1",
       "round": "Груповий етап",
-      "clock": "40:00"
+      "clock": "40:00",
+      "touchdowns": [
+        {
+          "id": "af515e69-75e5-495d-bee9-e9fdf9dedd37",
+          "teamId": "bizony",
+          "scorer": "Іван Тачдаауненко #88",
+          "clock": "40:00",
+          "period": "1",
+          "createdAt": "2026-09-06T12:03:48.141Z"
+        }
+      ]
     }
   ],
   "content": {

@@ -45,3 +45,44 @@ test('a match cannot reference a team outside the tournament', () => {
 
   assert.throws(() => validateTournament(tournament), /невідома команда/i);
 });
+
+function tournamentWithTouchdown(touchdown) {
+  return {
+    meta: { name: 'Test cup' },
+    divisions: [{ id: 'open', name: 'Open' }],
+    teams: [
+      { id: 'wolves', name: 'Wolves', division: 'open' },
+      { id: 'lynx', name: 'Lynx', division: 'open' },
+      { id: 'nxt', name: 'NXT', division: 'open' },
+    ],
+    matches: [{
+      id: 'm1', division: 'open', homeTeamId: 'wolves', awayTeamId: 'lynx',
+      homeScore: 6, awayScore: 0, status: 'live', date: '2026-09-12', time: '10:00',
+      touchdowns: [touchdown],
+    }],
+  };
+}
+
+function tournamentWithConversion(conversion) {
+  const tournament = tournamentWithTouchdown({ id: 'td-1', teamId: 'wolves', scorer: 'Player 7' });
+  tournament.matches[0].conversions = [conversion];
+  return tournament;
+}
+
+test('a touchdown scorer must belong to one of the teams in the match', () => {
+  const tournament = tournamentWithTouchdown({ id: 'td-1', teamId: 'nxt', scorer: 'Player 7', clock: '05:42', period: '1' });
+
+  assert.throws(() => validateTournament(tournament), /тачдаун.*команд/i);
+});
+
+test('a touchdown requires the scorer name', () => {
+  const tournament = tournamentWithTouchdown({ id: 'td-1', teamId: 'wolves', scorer: '   ', clock: '05:42', period: '1' });
+
+  assert.throws(() => validateTournament(tournament), /автор.*тачдаун/i);
+});
+
+test('a conversion is worth exactly one or two points', () => {
+  const tournament = tournamentWithConversion({ id: 'xp-1', teamId: 'wolves', scorer: 'Player 8', points: 3 });
+
+  assert.throws(() => validateTournament(tournament), /реалізаці.*1 або 2/i);
+});

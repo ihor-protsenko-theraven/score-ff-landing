@@ -1,3 +1,5 @@
+import { scoringEvents } from './match-events.js';
+
 const content = document.querySelector('#content');
 const infoDialog = document.querySelector('#infoDialog');
 const toast = document.querySelector('#toast');
@@ -22,7 +24,8 @@ const copy = {
     info: 'Інформація', rulesTitle: 'Правила гри', regulationsTitle: 'Регламент турніру',
     loadError: 'Не вдалося завантажити дані турніру.', retry: 'Спробувати ще раз', versus: 'проти',
     noSchedule: 'Розклад готується', noScheduleHint: 'Матчі з’являться тут щойно організатори опублікують сітку.',
-    teamsTitle: 'Команди турніру', teamsCount: 'учасників',
+    teamsTitle: 'Команди турніру', teamsCount: 'учасників', scoringPlays: 'Результативні дії', touchdown: 'тачдаун', conversion: 'реалізація', point: 'очко', pointsFew: 'очки', pointsMany: 'очок',
+    firstHalf: '1 половина', secondHalf: '2 половина', overtime: 'овертайм',
   },
   en: {
     onAir: 'LIVE', rules: 'Rules', regulations: 'Regulations', when: 'When', where: 'Where',
@@ -36,7 +39,8 @@ const copy = {
     info: 'Information', rulesTitle: 'Game rules', regulationsTitle: 'Tournament regulations',
     loadError: 'Tournament data could not be loaded.', retry: 'Try again', versus: 'vs',
     noSchedule: 'Schedule in progress', noScheduleHint: 'Matches will appear here as soon as the organizers publish the draw.',
-    teamsTitle: 'Tournament Teams', teamsCount: 'teams',
+    teamsTitle: 'Tournament Teams', teamsCount: 'teams', scoringPlays: 'Scoring plays', touchdown: 'touchdown', conversion: 'conversion', point: 'point', pointsFew: 'points', pointsMany: 'points',
+    firstHalf: '1st half', secondHalf: '2nd half', overtime: 'overtime',
   },
 };
 
@@ -93,6 +97,41 @@ function sectionHeading(title, meta = '', action = '') {
   return `<div class="section-heading"><div class="section-heading__title"><h2>${escapeHtml(title)}</h2>${meta ? `<span>${escapeHtml(meta)}</span>` : ''}</div>${action}</div>`;
 }
 
+function touchdownPeriod(period) {
+  return ({ '1': t('firstHalf'), '2': t('secondHalf'), OT: t('overtime') })[String(period || '')] || String(period || '');
+}
+
+function touchdownItems(match) {
+  return scoringEvents(match).map((scoringEvent) => {
+    const scoringTeam = team(scoringEvent.teamId);
+    const context = [touchdownPeriod(scoringEvent.period), scoringEvent.clock].filter(Boolean).join(' · ');
+    const eventName = scoringEvent.type === 'touchdown' ? t('touchdown') : t('conversion');
+    const pointsWord = scoringEvent.points === 1 ? t('point') : (scoringEvent.points === 2 ? t('pointsFew') : t('pointsMany'));
+    const pointsLabel = `${scoringEvent.points} ${pointsWord}`;
+    return `<li class="touchdown-event">
+      <span class="touchdown-event__points" aria-label="${escapeHtml(pointsLabel)}">${scoringEvent.points}</span>
+      ${teamBadge(scoringTeam, true)}
+      <div><strong>${escapeHtml(scoringEvent.scorer)}</strong><span>${escapeHtml(scoringTeam.name)} · ${escapeHtml(eventName)}</span></div>
+      ${context ? `<time>${escapeHtml(context)}</time>` : ''}
+    </li>`;
+  }).join('');
+}
+
+function touchdownFeed(match) {
+  const count = scoringEvents(match).length;
+  if (!count) return '';
+  return `<section class="touchdown-feed" aria-label="${escapeHtml(t('scoringPlays'))}">
+    <div class="touchdown-feed__heading"><h3>${escapeHtml(t('scoringPlays'))}</h3><span>${count}</span></div>
+    <ol class="touchdown-feed__list">${touchdownItems(match)}</ol>
+  </section>`;
+}
+
+function scheduleTouchdowns(match) {
+  const count = scoringEvents(match).length;
+  if (!count) return '';
+  return `<details class="schedule-touchdowns"><summary>${escapeHtml(t('scoringPlays'))} <span>${count}</span></summary><ol class="touchdown-feed__list">${touchdownItems(match)}</ol></details>`;
+}
+
 function infoLinks() {
   return `<div class="info-links"><span>${escapeHtml(t('info'))}</span><button type="button" data-info="rules">${escapeHtml(t('rulesTitle'))}</button><button type="button" data-info="regulations">${escapeHtml(t('regulationsTitle'))}</button></div>`;
 }
@@ -131,6 +170,7 @@ function liveCard(match) {
         <div><dt>${escapeHtml(t('gameClock'))}</dt><dd>${escapeHtml(gameClock)}</dd></div>
         <div><dt>${escapeHtml(t('possessionLabel'))}</dt><dd>${escapeHtml(possession)}</dd></div>
       </dl>
+      ${touchdownFeed(match)}
       ${match.lastPlay ? `<div class="live-card__last"><span>${escapeHtml(t('lastPlay'))}</span><strong>${escapeHtml(match.lastPlay)}</strong></div>` : ''}
     </article>`;
 }
@@ -217,6 +257,7 @@ function scheduleRow(match) {
       <div class="schedule-row__main"><span class="schedule-row__round">${escapeHtml(match.round || statusText(match.status))}</span><span class="schedule-row__teams">${escapeHtml(home.name)}<i>—</i>${escapeHtml(away.name)}</span></div>
       <span class="match-meta schedule-row__field">${escapeHtml(divisionName(match.division))} · ${escapeHtml(match.field)}</span>
       ${score || `<span class="match-meta">${escapeHtml(statusText(match.status))}</span>`}
+      ${scheduleTouchdowns(match)}
     </article>`;
 }
 

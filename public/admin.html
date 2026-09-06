@@ -146,6 +146,33 @@
       </main>
     </div>
 
+    <dialog class="info-dialog touchdown-dialog" id="touchdownDialog" aria-labelledby="touchdownDialogTitle" aria-describedby="touchdownDialogHint">
+      <div class="info-dialog__top">
+        <div>
+          <span class="kicker">MATCH STATS · SCORING</span>
+          <h2 id="touchdownDialogTitle">Статистика матчу</h2>
+          <p class="touchdown-dialog__match" id="touchdownDialogMatch"></p>
+        </div>
+        <button class="icon-button" id="closeTouchdownDialog" type="button" aria-label="Закрити">×</button>
+      </div>
+      <div class="touchdown-dialog__body">
+        <form class="touchdown-form" id="touchdownForm">
+          <label>Результативна дія<select id="touchdownTypeInput" name="eventType" required><option value="touchdown">Тачдаун · 6 очок</option><option value="conversion-1">Реалізація · 1 очко</option><option value="conversion-2">Реалізація · 2 очки</option></select></label>
+          <label>Команда<select id="touchdownTeamInput" name="teamId" required></select></label>
+          <label class="touchdown-form__scorer">Хто набрав очки<input id="touchdownScorerInput" name="scorer" maxlength="80" required placeholder="Ім’я або номер гравця" autocomplete="off" /></label>
+          <label>Час на табло<input id="touchdownClockInput" name="clock" maxlength="8" placeholder="05:42" inputmode="numeric" /></label>
+          <label>Період<select id="touchdownPeriodInput" name="period"><option value="1">1 половина</option><option value="2">2 половина</option><option value="OT">Овертайм</option></select></label>
+          <p class="touchdown-form__hint" id="touchdownDialogHint">Подія додає автора й тип набору очок до статистики, але не змінює рахунок автоматично.</p>
+          <p class="form-error touchdown-form__error" id="touchdownFormError" role="alert"></p>
+          <button class="button button--primary" type="submit">+ Додати подію</button>
+        </form>
+        <section class="touchdown-admin-log" aria-labelledby="touchdownLogTitle">
+          <div class="touchdown-admin-log__heading"><h3 id="touchdownLogTitle">Результативні дії</h3><span id="touchdownLogCount">0</span></div>
+          <div id="touchdownLog"></div>
+        </section>
+      </div>
+    </dialog>
+
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script type="module" src="/admin.js"></script>
   </body>
