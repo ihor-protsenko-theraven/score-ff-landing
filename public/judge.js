@@ -1,0 +1,420 @@
+import { formatClock, parseClock, scoreAfter } from './judge-state.js';
+
+const judgeLogin = document.querySelector('#judgeLogin');
+const judgeApp = document.querySelector('#judgeApp');
+const judgeConsole = document.querySelector('#judgeConsole');
+const judgeEmpty = document.querySelector('#judgeEmpty');
+const matchSelect = document.querySelector('#judgeMatchSelect');
+const clockOutput = document.querySelector('#judgeClock');
+const clockToggle = document.querySelector('#judgeClockToggle');
+const syncIndicator = document.querySelector('#judgeSync');
+const toast = document.querySelector('#judgeToast');
+
+const TOKEN_KEY = 'flag-score-judge-token';
+const EXPIRY_KEY = 'flag-score-judge-expiry';
+const ACTIVE_STATUSES = new Set(['live', 'halftime']);
+
+const state = {
+  data: null,
+  matchId: null,
+  token: localStorage.getItem(TOKEN_KEY) || '',
+  expiresAt: localStorage.getItem(EXPIRY_KEY) || '',
+  clockSeconds: 0,
+  clockRunning: false,
+  clockStartedAt: 0,
+  clockStartedSeconds: 0,
+  timerId: null,
+  lastClockSync: 0,
+  syncChain: Promise.resolve(),
+  pendingSaves: 0,
+};
+
+function selectedMatch() {
+  return state.data?.matches.find((match) => match.id === state.matchId);
+}
+
+function teamName(teamId) {
+  return state.data?.teams.find((team) => team.id === teamId)?.name || 'TBD';
+}
+
+function sessionIsFresh() {
+  return Boolean(state.token) && Date.parse(state.expiresAt) > Date.now();
+}
+
+function clearSession() {
+  state.token = '';
+  state.expiresAt = '';
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(EXPIRY_KEY);
+}
+
+function showToast(message, type = 'success') {
+  toast.textContent = message;
+  toast.dataset.type = type;
+  toast.classList.add('is-visible');
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => toast.classList.remove('is-visible'), 2600);
+}
+
+function setSyncState(status, label) {
+  syncIndicator.dataset.state = status;
+  syncIndicator.querySelector('span').textContent = label;
+}
+
+function showLogin(message = '') {
+  stopClock(false);
+  judgeApp.hidden = true;
+  judgeLogin.hidden = false;
+  document.querySelector('#judgeLoginError').textContent = message;
+  document.querySelector('#judgePasswordInput').focus();
+}
+
+function showApp() {
+  judgeLogin.hidden = true;
+  judgeApp.hidden = false;
+}
+
+function statusLabel(status) {
+  return ({ scheduled: 'Заплановано', live: 'Наживо', halftime: 'Перерва', finished: 'Завершено' })[status] || status;
+}
+
+function orderedMatches() {
+  return [...(state.data?.matches || [])].sort((a, b) => {
+    const liveOrder = Number(ACTIVE_STATUSES.has(b.status)) - Number(ACTIVE_STATUSES.has(a.status));
+    return liveOrder || `${a.date}T${a.time}`.localeCompare(`${b.date}T${b.time}`);
+  });
+}
+
+function chooseMatch() {
+  const matches = orderedMatches();
+  const requestedId = new URLSearchParams(location.search).get('match');
+  if (matches.some((match) => match.id === state.matchId)) return;
+  state.matchId = matches.find((match) => match.id === requestedId)?.id
+    || matches.find((match) => ACTIVE_STATUSES.has(match.status))?.id
+    || matches[0]?.id
+    || null;
+}
+
+function renderMatchPicker() {
+  const matches = orderedMatches();
+  matchSelect.replaceChildren(...matches.map((match) => {
+    const option = document.createElement('option');
+    option.value = match.id;
+    option.textContent = `${teamName(match.homeTeamId)} — ${teamName(match.awayTeamId)} · ${match.field}`;
+    return option;
+  }));
+  matchSelect.disabled = matches.length === 0;
+  if (state.matchId) matchSelect.value = state.matchId;
+}
+
+function effectiveClockSeconds() {
+  if (!state.clockRunning) return state.clockSeconds;
+  const elapsed = Math.floor((Date.now() - state.clockStartedAt) / 1000);
+  return Math.max(0, state.clockStartedSeconds - elapsed);
+}
+
+function settleClock() {
+  state.clockSeconds = effectiveClockSeconds();
+  state.clockStartedSeconds = state.clockSeconds;
+  state.clockStartedAt = Date.now();
+  const match = selectedMatch();
+  if (match) match.clock = formatClock(state.clockSeconds);
+}
+
+function renderClock() {
+  const seconds = effectiveClockSeconds();
+  clockOutput.textContent = formatClock(seconds);
+  clockOutput.classList.toggle('is-running', state.clockRunning);
+  clockToggle.setAttribute('aria-pressed', String(state.clockRunning));
+  clockToggle.innerHTML = state.clockRunning ? '<span aria-hidden="true">Ⅱ</span> Пауза' : '<span aria-hidden="true">▶</span> Старт';
+}
+
+function renderPressedState(selector, value, attribute) {
+  document.querySelectorAll(selector).forEach((button) => {
+    button.setAttribute('aria-pressed', String(button.dataset[attribute] === String(value)));
+  });
+}
+
+function renderMatch() {
+  const match = selectedMatch();
+  const hasMatch = Boolean(match);
+  judgeEmpty.hidden = hasMatch;
+  judgeConsole.hidden = !hasMatch;
+  document.querySelector('.judge-picker').hidden = !hasMatch;
+  if (!match) return;
+
+  matchSelect.value = match.id;
+  const homeName = teamName(match.homeTeamId);
+  const awayName = teamName(match.awayTeamId);
+  document.querySelector('#judgeHomeName').textContent = homeName;
+  document.querySelector('#judgeAwayName').textContent = awayName;
+  document.querySelector('#judgeHomeScore').textContent = match.homeScore;
+  document.querySelector('#judgeAwayScore').textContent = match.awayScore;
+  document.querySelector('#judgeMatchMeta').textContent = `${statusLabel(match.status)} · ${match.date} ${match.time} · ${match.field}`;
+  renderPressedState('[data-down]', match.down || 1, 'down');
+  renderPressedState('[data-period]', match.period || '1', 'period');
+  renderPressedState('[data-match-status]', match.status, 'matchStatus');
+  document.querySelectorAll('[data-score-side]').forEach((button) => {
+    const scoringTeam = button.dataset.scoreSide === 'home' ? homeName : awayName;
+    button.setAttribute('aria-label', `${button.dataset.play}, ${scoringTeam}`);
+  });
+  renderClock();
+}
+
+function prepareSelectedClock() {
+  state.clockSeconds = parseClock(selectedMatch()?.clock || '20:00');
+  state.clockStartedSeconds = state.clockSeconds;
+  state.clockStartedAt = Date.now();
+  state.lastClockSync = state.clockSeconds;
+}
+
+function judgePatch() {
+  const match = selectedMatch();
+  if (!match) return null;
+  settleClock();
+  return {
+    homeScore: match.homeScore,
+    awayScore: match.awayScore,
+    clock: match.clock,
+    down: match.down || 1,
+    period: match.period || '1',
+    status: match.status,
+    lastPlay: match.lastPlay || '',
+  };
+}
+
+async function sendPatch(matchId, patch) {
+  const response = await fetch('/api/tournament', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${state.token}` },
+    body: JSON.stringify({ matchId, patch }),
+  });
+  const result = await response.json();
+  if (response.status === 401) {
+    clearSession();
+    showLogin('Сесія завершилася. Введіть пароль ще раз.');
+    throw new Error(result.error || 'Сесія завершилася');
+  }
+  if (!response.ok) throw new Error(result.error || 'Не вдалося синхронізувати матч');
+  const match = state.data?.matches.find((item) => item.id === matchId);
+  if (match) match.judgeUpdatedAt = result.match?.judgeUpdatedAt;
+}
+
+function queueSync() {
+  const match = selectedMatch();
+  if (!match || !state.token) return Promise.resolve();
+  const matchId = match.id;
+  const patch = judgePatch();
+  state.pendingSaves += 1;
+  setSyncState('saving', 'Зберігаємо…');
+
+  const operation = state.syncChain.then(() => sendPatch(matchId, patch));
+  state.syncChain = operation.catch(() => {});
+  operation
+    .then(() => {
+      if (state.pendingSaves === 1) setSyncState('ready', 'Синхронізовано');
+    })
+    .catch((error) => {
+      setSyncState('error', navigator.onLine ? 'Помилка синхронізації' : 'Немає мережі');
+      showToast(error.message, 'error');
+    })
+    .finally(() => {
+      state.pendingSaves = Math.max(0, state.pendingSaves - 1);
+    });
+  return operation;
+}
+
+function stopClock(sync = true) {
+  if (!state.clockRunning) return;
+  settleClock();
+  state.clockRunning = false;
+  clearInterval(state.timerId);
+  state.timerId = null;
+  renderClock();
+  if (sync) queueSync();
+}
+
+function tickClock() {
+  const seconds = effectiveClockSeconds();
+  renderClock();
+  if (seconds === 0) {
+    stopClock();
+    showToast('Час вийшов');
+    return;
+  }
+  if (Math.abs(seconds - state.lastClockSync) >= 5) {
+    state.lastClockSync = seconds;
+    queueSync();
+  }
+}
+
+function toggleClock() {
+  if (state.clockRunning) {
+    stopClock();
+    return;
+  }
+  if (state.clockSeconds <= 0) return showToast('Спочатку встановіть час', 'error');
+  const match = selectedMatch();
+  if (['scheduled', 'halftime'].includes(match.status)) match.status = 'live';
+  state.clockRunning = true;
+  state.clockStartedSeconds = state.clockSeconds;
+  state.clockStartedAt = Date.now();
+  state.lastClockSync = state.clockSeconds;
+  state.timerId = setInterval(tickClock, 250);
+  renderMatch();
+  queueSync();
+}
+
+function adjustClock(delta) {
+  settleClock();
+  state.clockSeconds = Math.max(0, state.clockSeconds + delta);
+  state.clockStartedSeconds = state.clockSeconds;
+  state.clockStartedAt = Date.now();
+  selectedMatch().clock = formatClock(state.clockSeconds);
+  renderClock();
+  queueSync();
+}
+
+async function loadTournament({ quiet = false } = {}) {
+  try {
+    const response = await fetch('/api/tournament', { cache: 'no-store' });
+    if (!response.ok) throw new Error('Не вдалося завантажити турнір');
+    state.data = await response.json();
+    chooseMatch();
+    renderMatchPicker();
+    prepareSelectedClock();
+    renderMatch();
+    if (!quiet) setSyncState('ready', 'Синхронізовано');
+  } catch (error) {
+    setSyncState('error', 'Немає зв’язку');
+    if (!quiet) showToast(error.message, 'error');
+  }
+}
+
+async function authenticate(password) {
+  const response = await fetch('/api/judge/verify', {
+    method: 'POST',
+    headers: { 'X-Judge-Password': password },
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error || 'Невірний пароль');
+  state.token = result.token;
+  state.expiresAt = result.expiresAt;
+  localStorage.setItem(TOKEN_KEY, result.token);
+  localStorage.setItem(EXPIRY_KEY, result.expiresAt);
+}
+
+document.querySelector('#judgeLoginForm').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const button = event.currentTarget.querySelector('button[type="submit"]');
+  const error = document.querySelector('#judgeLoginError');
+  button.disabled = true;
+  button.textContent = 'Входимо…';
+  error.textContent = '';
+  try {
+    await authenticate(document.querySelector('#judgePasswordInput').value);
+    showApp();
+    await loadTournament();
+  } catch (loginError) {
+    error.textContent = loginError.message;
+  } finally {
+    button.disabled = false;
+    button.innerHTML = 'Відкрити матч <span>→</span>';
+  }
+});
+
+matchSelect.addEventListener('change', () => {
+  stopClock();
+  state.matchId = matchSelect.value;
+  const url = new URL(location.href);
+  url.searchParams.set('match', state.matchId);
+  history.replaceState(null, '', url);
+  prepareSelectedClock();
+  renderMatch();
+});
+
+clockToggle.addEventListener('click', toggleClock);
+document.querySelectorAll('[data-clock-delta]').forEach((button) => {
+  button.addEventListener('click', () => adjustClock(Number(button.dataset.clockDelta)));
+});
+document.querySelector('#judgeResetClock').addEventListener('click', () => {
+  if (state.clockSeconds !== 0 && !confirm('Поставити таймер на 20:00?')) return;
+  stopClock(false);
+  state.clockSeconds = 20 * 60;
+  state.clockStartedSeconds = state.clockSeconds;
+  selectedMatch().clock = formatClock(state.clockSeconds);
+  renderClock();
+  queueSync();
+});
+
+document.querySelector('#judgeDowns').addEventListener('click', (event) => {
+  const button = event.target.closest('[data-down]');
+  if (!button) return;
+  selectedMatch().down = Number(button.dataset.down);
+  renderMatch();
+  queueSync();
+  navigator.vibrate?.(20);
+});
+
+document.querySelector('#judgePeriods').addEventListener('click', (event) => {
+  const button = event.target.closest('[data-period]');
+  if (!button) return;
+  selectedMatch().period = button.dataset.period;
+  renderMatch();
+  queueSync();
+});
+
+document.querySelector('.judge-scoreboard').addEventListener('click', (event) => {
+  const button = event.target.closest('[data-score-side]');
+  if (!button) return;
+  const match = selectedMatch();
+  const field = button.dataset.scoreSide === 'home' ? 'homeScore' : 'awayScore';
+  match[field] = scoreAfter(match[field], Number(button.dataset.scoreDelta));
+  const scoringTeam = teamName(button.dataset.scoreSide === 'home' ? match.homeTeamId : match.awayTeamId);
+  match.lastPlay = `${button.dataset.play} · ${scoringTeam}`;
+  renderMatch();
+  queueSync();
+  navigator.vibrate?.(25);
+});
+
+document.querySelector('.judge-match-status').addEventListener('click', (event) => {
+  const button = event.target.closest('[data-match-status]');
+  if (!button) return;
+  if (button.dataset.matchStatus !== 'live') stopClock(false);
+  selectedMatch().status = button.dataset.matchStatus;
+  renderMatch();
+  queueSync();
+});
+
+document.querySelector('#judgeReload').addEventListener('click', () => loadTournament());
+document.querySelector('#judgeLogout').addEventListener('click', () => {
+  clearSession();
+  showLogin();
+});
+
+window.addEventListener('online', () => {
+  setSyncState('saving', 'Відновлюємо зв’язок…');
+  queueSync();
+});
+window.addEventListener('pagehide', () => {
+  if (!state.token || !selectedMatch()) return;
+  const patch = judgePatch();
+  fetch('/api/tournament', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${state.token}` },
+    body: JSON.stringify({ matchId: state.matchId, patch }),
+    keepalive: true,
+  }).catch(() => {});
+});
+
+setInterval(() => {
+  if (!state.clockRunning && state.pendingSaves === 0 && !document.hidden && sessionIsFresh()) loadTournament({ quiet: true });
+}, 5000);
+
+if (sessionIsFresh()) {
+  showApp();
+  loadTournament();
+} else {
+  clearSession();
+  showLogin();
+}

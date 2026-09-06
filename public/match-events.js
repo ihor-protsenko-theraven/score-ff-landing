@@ -60,10 +60,27 @@ export function removeConversion(match, conversionId) {
   match.conversions = (match.conversions || []).filter((conversion) => conversion.id !== conversionId);
 }
 
+export function recordSafety(match, input, options = {}) {
+  const teamId = clean(input.teamId);
+  const scorer = clean(input.scorer);
+  validateMatchTeam(match, teamId);
+  if (!scorer) throw new Error('Вкажіть автора сейфті');
+
+  const safety = scoringContext({ ...input, teamId, scorer }, options, 'safety');
+  match.safeties ||= [];
+  match.safeties.push(safety);
+  return safety;
+}
+
+export function removeSafety(match, safetyId) {
+  match.safeties = (match.safeties || []).filter((safety) => safety.id !== safetyId);
+}
+
 export function scoringEvents(match) {
   const events = [
     ...(match.touchdowns || []).map((event, index) => ({ ...event, type: 'touchdown', points: 6, index })),
     ...(match.conversions || []).map((event, index) => ({ ...event, type: 'conversion', points: Number(event.points), index })),
+    ...(match.safeties || []).map((event, index) => ({ ...event, type: 'safety', points: 2, index })),
   ];
 
   return events.sort((a, b) => {

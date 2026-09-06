@@ -22,7 +22,8 @@ async function withServer(run) {
   const dataFile = path.join(directory, 'tournament.json');
   await writeFile(dataFile, JSON.stringify(fixture), 'utf8');
   await writeFile(path.join(directory, 'index.html'), '<h1>Score app</h1>', 'utf8');
-  const server = createApp({ dataFile, publicDir: directory, adminPassword: 'secret' });
+  await writeFile(path.join(directory, 'judge.html'), '<h1>Judge app</h1>', 'utf8');
+  const server = createApp({ dataFile, publicDir: directory, adminPassword: 'secret', judgePassword: 'referee' });
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   const { port } = server.address();
   try {
@@ -88,14 +89,25 @@ test('the server delivers the public application shell', async () => {
   });
 });
 
-test('the public and admin shells avoid render-blocking third-party fonts', async () => {
-  const [publicShell, adminShell] = await Promise.all([
+test('the server delivers the judge application shell at a clean URL', async () => {
+  await withServer(async (baseUrl) => {
+    const response = await fetch(`${baseUrl}/judge`);
+
+    assert.equal(response.status, 200);
+    assert.match(await response.text(), /Judge app/);
+  });
+});
+
+test('the public, admin, and judge shells avoid render-blocking third-party fonts', async () => {
+  const [publicShell, adminShell, judgeShell] = await Promise.all([
     readFile(path.resolve('public/index.html'), 'utf8'),
     readFile(path.resolve('public/admin.html'), 'utf8'),
+    readFile(path.resolve('public/judge.html'), 'utf8'),
   ]);
 
   assert.doesNotMatch(publicShell, /fonts\.googleapis\.com|fonts\.gstatic\.com/);
   assert.doesNotMatch(adminShell, /fonts\.googleapis\.com|fonts\.gstatic\.com/);
+  assert.doesNotMatch(judgeShell, /fonts\.googleapis\.com|fonts\.gstatic\.com/);
 });
 
 test('the admin password can be verified without changing tournament data', async () => {
@@ -111,5 +123,136 @@ test('the admin password can be verified without changing tournament data', asyn
 
     assert.equal(rejected.status, 401);
     assert.equal(accepted.status, 200);
+  });
+});
+
+test('a judge password can be exchanged for a temporary session token', async () => {
+  await withServer(async (baseUrl) => {
+    const rejected = await fetch(`${baseUrl}/api/judge/verify`, {
+      method: 'POST',
+      headers: { 'X-Judge-Password': 'wrong' },
+    });
+    const accepted = await fetch(`${baseUrl}/api/judge/verify`, {
+      method: 'POST',
+      headers: { 'X-Judge-Password': 'referee' },
+    });
+    const body = await accepted.json();
+
+    assert.equal(rejected.status, 401);
+    assert.equal(accepted.status, 200);
+    assert.equal(typeof body.token, 'string');
+    assert.ok(body.token.length > 32);
+    assert.ok(Date.parse(body.expiresAt) > Date.now());
+  });
+});
+
+test('a judge session updates only the selected match state', async () => {
+  await withServer(async (baseUrl) => {
+    const tournament = structuredClone(fixture);
+    tournament.matches = [
+      {
+        id: 'match-1', division: 'open', homeTeamId: 'wolves', awayTeamId: 'lynx',
+        homeScore: 0, awayScore: 0, status: 'scheduled', date: '2026-09-12', time: '10:00', field: 'Поле 1', clock: '20:00', down: 1,
+      },
+      {
+        id: 'match-2', division: 'open', homeTeamId: 'lynx', awayTeamId: 'wolves',
+        homeScore: 0, awayScore: 0, status: 'scheduled', date: '2026-09-12', time: '11:00', field: 'Поле 2', clock: '20:00', down: 1,
+      },
+    ];
+    await fetch(`${baseUrl}/api/tournament`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Password': 'secret' },
+      body: JSON.stringify(tournament),
+    });
+    const loginResponse = await fetch(`${baseUrl}/api/judge/verify`, {
+      method: 'POST',
+      headers: { 'X-Judge-Password': 'referee' },
+    });
+    const { token } = await loginResponse.json();
+
+    const updateResponse = await fetch(`${baseUrl}/api/tournament`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        matchId: 'match-1',
+        patch: { homeScore: 6, awayScore: 2, clock: '18:42', down: 2, period: '1', status: 'live' },
+      }),
+    });
+    const publicResponse = await fetch(`${baseUrl}/api/tournament`);
+    const body = await publicResponse.json();
+
+    assert.equal(updateResponse.status, 200);
+    assert.deepEqual(
+      body.matches.map(({ id, homeScore, awayScore, clock, down, status }) => ({ id, homeScore, awayScore, clock, down, status })),
+      [
+        { id: 'match-1', homeScore: 6, awayScore: 2, clock: '18:42', down: 2, status: 'live' },
+        { id: 'match-2', homeScore: 0, awayScore: 0, clock: '20:00', down: 1, status: 'scheduled' },
+      ],
+    );
+  });
+});
+
+test('a judge update rejects an invalid down value', async () => {
+  await withServer(async (baseUrl) => {
+    const tournament = structuredClone(fixture);
+    tournament.matches = [{
+      id: 'match-1', division: 'open', homeTeamId: 'wolves', awayTeamId: 'lynx',
+      homeScore: 0, awayScore: 0, status: 'live', date: '2026-09-12', time: '10:00', field: 'Поле 1', clock: '20:00', down: 1,
+    }];
+    await fetch(`${baseUrl}/api/tournament`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Password': 'secret' },
+      body: JSON.stringify(tournament),
+    });
+    const loginResponse = await fetch(`${baseUrl}/api/judge/verify`, {
+      method: 'POST',
+      headers: { 'X-Judge-Password': 'referee' },
+    });
+    const { token } = await loginResponse.json();
+
+    const updateResponse = await fetch(`${baseUrl}/api/tournament`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ matchId: 'match-1', patch: { down: 5 } }),
+    });
+
+    assert.equal(updateResponse.status, 400);
+    assert.match((await updateResponse.json()).error, /даун/i);
+  });
+});
+
+test('an admin cannot overwrite a newer judge update with stale tournament data', async () => {
+  await withServer(async (baseUrl) => {
+    const tournament = structuredClone(fixture);
+    tournament.matches = [{
+      id: 'match-1', division: 'open', homeTeamId: 'wolves', awayTeamId: 'lynx',
+      homeScore: 0, awayScore: 0, status: 'live', date: '2026-09-12', time: '10:00', field: 'Поле 1', clock: '20:00', down: 1,
+    }];
+    const initialSave = await fetch(`${baseUrl}/api/tournament`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Password': 'secret' },
+      body: JSON.stringify(tournament),
+    });
+    const { updatedAt: initialVersion } = await initialSave.json();
+    tournament.meta.updatedAt = initialVersion;
+    const loginResponse = await fetch(`${baseUrl}/api/judge/verify`, {
+      method: 'POST',
+      headers: { 'X-Judge-Password': 'referee' },
+    });
+    const { token } = await loginResponse.json();
+    await fetch(`${baseUrl}/api/tournament`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ matchId: 'match-1', patch: { homeScore: 6 } }),
+    });
+
+    const staleSave = await fetch(`${baseUrl}/api/tournament`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Password': 'secret', 'X-Tournament-Version': initialVersion },
+      body: JSON.stringify(tournament),
+    });
+
+    assert.equal(staleSave.status, 409);
+    assert.match((await staleSave.json()).error, /судд|оновлен/i);
   });
 });

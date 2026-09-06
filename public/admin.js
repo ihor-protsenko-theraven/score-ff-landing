@@ -1,7 +1,9 @@
 import {
   recordConversion,
+  recordSafety,
   recordTouchdown,
   removeConversion,
+  removeSafety,
   removeTouchdown,
   scoringEvents,
 } from './match-events.js';
@@ -107,7 +109,7 @@ function renderTouchdownDialog() {
   const events = scoringEvents(match).reverse();
   document.querySelector('#touchdownLogCount').textContent = events.length;
   document.querySelector('#touchdownLog').innerHTML = events.length ? events.map((scoringEvent) => {
-    const eventLabel = scoringEvent.type === 'touchdown' ? 'Тачдаун' : 'Реалізація';
+    const eventLabel = ({ touchdown: 'Тачдаун', conversion: 'Реалізація', safety: 'Сейфті' })[scoringEvent.type];
     const context = [`${eventLabel} · ${scoringEvent.points} оч.`, teamName(scoringEvent.teamId), scoringEvent.period ? `${scoringEvent.period === 'OT' ? 'овертайм' : `${scoringEvent.period} половина`}` : '', scoringEvent.clock || '']
       .filter(Boolean)
       .join(' · ');
@@ -159,7 +161,7 @@ function quickScore(match) {
   const eventCount = scoringEvents(match).length;
   return `
     <article class="quick-score">
-      <div class="quick-score__meta"><strong>${escapeHtml(match.field)}</strong><span>${escapeHtml(divisionName(match.division))} · ${escapeHtml(match.clock || '--:--')}</span></div>
+      <div class="quick-score__meta"><strong>${escapeHtml(match.field)}</strong><span>${escapeHtml(divisionName(match.division))} · ${escapeHtml(match.clock || '--:--')} · Даун ${match.down || '—'}</span></div>
       <div class="quick-score__teams">
         <div class="score-stepper"><span class="score-stepper__team">${escapeHtml(teamName(match.homeTeamId))}</span><button type="button" data-bump="home" data-match-id="${escapeHtml(match.id)}" data-delta="-1" aria-label="Мінус очко ${escapeHtml(teamName(match.homeTeamId))}">−</button><strong>${match.homeScore}</strong><button type="button" data-bump="home" data-match-id="${escapeHtml(match.id)}" data-delta="1" aria-label="Плюс очко ${escapeHtml(teamName(match.homeTeamId))}">+</button></div>
         <span class="score-divider">:</span>
@@ -275,6 +277,25 @@ async function fetchTournament() {
   state.data = await response.json();
 }
 
+async function refreshAdminFromServer() {
+  if (!state.data || state.dirty || document.hidden || touchdownDialog.open) return;
+  try {
+    const response = await fetch('/api/tournament', { cache: 'no-store' });
+    if (!response.ok) return;
+    const freshData = await response.json();
+    if (freshData.meta.updatedAt === state.data.meta.updatedAt) return;
+    state.data = freshData;
+    renderSection();
+    const label = document.querySelector('#saveState');
+    label.textContent = 'Оновлено із суддівської панелі';
+    setTimeout(() => {
+      if (!state.dirty) label.textContent = 'Усі зміни збережено';
+    }, 1800);
+  } catch {
+    // The next polling cycle will retry without interrupting the operator.
+  }
+}
+
 async function verifyPassword(password) {
   const response = await fetch('/api/admin/verify', { method: 'POST', headers: { 'X-Admin-Password': password } });
   return response.ok;
@@ -307,7 +328,11 @@ async function saveTournament() {
     };
     const response = await fetch('/api/tournament', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'X-Admin-Password': state.password },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Password': state.password,
+        'X-Tournament-Version': state.data.meta.updatedAt || '',
+      },
       body: JSON.stringify(payload),
     });
     const result = await response.json();
@@ -366,7 +391,7 @@ document.addEventListener('click', (event) => {
     const today = new Date().toISOString().slice(0, 10);
     state.data.matches.push({
       id: `match-${Date.now()}`, division: division.id, homeTeamId: teams[0].id, awayTeamId: teams[1].id,
-      homeScore: 0, awayScore: 0, status: 'scheduled', date: today, time: '10:00', field: 'Поле 1', round: 'Груповий етап', clock: '40:00', touchdowns: [], conversions: [],
+      homeScore: 0, awayScore: 0, status: 'scheduled', date: today, time: '10:00', field: 'Поле 1', round: 'Груповий етап', clock: '40:00', touchdowns: [], conversions: [], safeties: [],
     });
     state.matchStatus = 'all';
     state.matchDivision = 'all';
@@ -396,6 +421,8 @@ document.addEventListener('click', (event) => {
     if (!match) return;
     if (deleteScoringButton.dataset.scoringType === 'conversion') {
       removeConversion(match, deleteScoringButton.dataset.deleteScoring);
+    } else if (deleteScoringButton.dataset.scoringType === 'safety') {
+      removeSafety(match, deleteScoringButton.dataset.deleteScoring);
     } else {
       removeTouchdown(match, deleteScoringButton.dataset.deleteScoring);
     }
@@ -485,6 +512,8 @@ document.querySelector('#touchdownForm').addEventListener('submit', (event) => {
     };
     if (eventType === 'touchdown') {
       recordTouchdown(match, input);
+    } else if (eventType === 'safety') {
+      recordSafety(match, input);
     } else {
       recordConversion(match, { ...input, points: Number(eventType === 'conversion-2' ? 2 : 1) });
     }
@@ -516,3 +545,5 @@ if (state.password) {
     state.password = '';
   });
 }
+
+setInterval(refreshAdminFromServer, 5000);

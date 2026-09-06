@@ -7,7 +7,7 @@
     "venue": "Житомир · вул. Коростишівська, 15",
     "venueUrl": "https://maps.app.goo.gl/SdcT7nBRSaUqjQb68",
     "dates": "12 вересня з 11:00 · 13 вересня з 09:00",
-    "updatedAt": "2026-09-06T12:04:03.444Z"
+    "updatedAt": "2026-09-06T21:19:35.526Z"
   },
   "divisions": [
     {
@@ -66,14 +66,14 @@
       "division": "mixed",
       "homeTeamId": "bizony",
       "awayTeamId": "vovky",
-      "homeScore": 7,
-      "awayScore": 0,
-      "status": "live",
+      "homeScore": 24,
+      "awayScore": 11,
+      "status": "finished",
       "date": "2026-09-06",
       "time": "10:00",
       "field": "Поле 1",
       "round": "Груповий етап",
-      "clock": "40:00",
+      "clock": "39:58",
       "touchdowns": [
         {
           "id": "af515e69-75e5-495d-bee9-e9fdf9dedd37",
@@ -83,7 +83,22 @@
           "period": "1",
           "createdAt": "2026-09-06T12:03:48.141Z"
         }
-      ]
+      ],
+      "conversions": [
+        {
+          "id": "b74f13a1-bde8-4c84-b6bc-59ffd85974a2",
+          "teamId": "bizony",
+          "scorer": "Бекхем Мельник #13",
+          "clock": "40:00",
+          "period": "1",
+          "createdAt": "2026-09-06T17:01:12.263Z",
+          "points": 1
+        }
+      ],
+      "down": 1,
+      "period": "1",
+      "lastPlay": "Тачдаун · Бізони",
+      "judgeUpdatedAt": "2026-09-06T21:19:35.526Z"
     }
   ],
   "content": {

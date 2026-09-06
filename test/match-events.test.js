@@ -82,3 +82,14 @@ test('removing a conversion leaves other scoring events intact', async () => {
     { id: 'xp-2', points: 2 },
   ]);
 });
+
+test('a safety is recorded as a two-point scoring event', async () => {
+  const { recordSafety, scoringEvents } = await import('../public/match-events.js');
+  const match = { id: 'm1', homeTeamId: 'wolves', awayTeamId: 'lynx' };
+
+  recordSafety(match, { teamId: 'lynx', scorer: 'Player 4', clock: '03:20', period: '2' }, { id: 'safety-1', createdAt: '2026-09-12T10:08:00.000Z' });
+
+  assert.deepEqual(scoringEvents(match).map(({ id, type, points, scorer }) => ({ id, type, points, scorer })), [
+    { id: 'safety-1', type: 'safety', points: 2, scorer: 'Player 4' },
+  ]);
+});

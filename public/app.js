@@ -17,14 +17,14 @@ const copy = {
     live: 'Наживо', standings: 'Таблиці', schedule: 'Розклад', footer: 'Один турнір. Усі рахунки. Наживо.',
     onFields: 'На полях', liveGames: 'матчі тривають', noLive: 'Зараз немає активних матчів',
     noLiveHint: 'Розклад матчів з’явиться після публікації організаторами — сторінка оновлюється автоматично.', nextGames: 'Наступні ігри',
-    attack: 'атака', period: 'Період', gameClock: 'Ігровий час', possessionLabel: 'Володіння', gameState: 'Стан матчу', notSet: 'Не вказано', lastPlay: 'Остання дія',
+    attack: 'атака', period: 'Період', down: 'Даун', gameClock: 'Ігровий час', possessionLabel: 'Володіння', gameState: 'Стан матчу', notSet: 'Не вказано', lastPlay: 'Остання дія',
     played: 'зіграно', team: 'Команда', games: 'І', record: 'В–П', difference: '+/−', points: 'Очки',
     playoff: 'Сітка плей-оф формується за підсумками групового етапу.', list: 'Список', byFields: 'За полями',
     gamesCount: 'ігор', scheduled: 'Заплановано', liveStatus: 'Наживо', halftime: 'Перерва', finished: 'Завершено',
     info: 'Інформація', rulesTitle: 'Правила гри', regulationsTitle: 'Регламент турніру',
     loadError: 'Не вдалося завантажити дані турніру.', retry: 'Спробувати ще раз', versus: 'проти',
     noSchedule: 'Розклад готується', noScheduleHint: 'Матчі з’являться тут щойно організатори опублікують сітку.',
-    teamsTitle: 'Команди турніру', teamsCount: 'учасників', scoringPlays: 'Результативні дії', touchdown: 'тачдаун', conversion: 'реалізація', point: 'очко', pointsFew: 'очки', pointsMany: 'очок',
+    teamsTitle: 'Команди турніру', teamsCount: 'учасників', scoringPlays: 'Результативні дії', touchdown: 'тачдаун', conversion: 'реалізація', safety: 'сейфті', point: 'очко', pointsFew: 'очки', pointsMany: 'очок',
     firstHalf: '1 половина', secondHalf: '2 половина', overtime: 'овертайм',
   },
   en: {
@@ -32,14 +32,14 @@ const copy = {
     live: 'Live', standings: 'Standings', schedule: 'Schedule', footer: 'One tournament. Every score. Live.',
     onFields: 'On the fields', liveGames: 'games in progress', noLive: 'No games are live right now',
     noLiveHint: 'The match schedule will appear after it is published — this page refreshes automatically.', nextGames: 'Next games',
-    attack: 'possession', period: 'Period', gameClock: 'Game clock', possessionLabel: 'Possession', gameState: 'Game state', notSet: 'Not set', lastPlay: 'Latest play',
+    attack: 'possession', period: 'Period', down: 'Down', gameClock: 'Game clock', possessionLabel: 'Possession', gameState: 'Game state', notSet: 'Not set', lastPlay: 'Latest play',
     played: 'played', team: 'Team', games: 'GP', record: 'W–L', difference: '+/−', points: 'Points',
     playoff: 'The playoff bracket will be formed after the group stage.', list: 'List', byFields: 'By field',
     gamesCount: 'games', scheduled: 'Scheduled', liveStatus: 'Live', halftime: 'Halftime', finished: 'Final',
     info: 'Information', rulesTitle: 'Game rules', regulationsTitle: 'Tournament regulations',
     loadError: 'Tournament data could not be loaded.', retry: 'Try again', versus: 'vs',
     noSchedule: 'Schedule in progress', noScheduleHint: 'Matches will appear here as soon as the organizers publish the draw.',
-    teamsTitle: 'Tournament Teams', teamsCount: 'teams', scoringPlays: 'Scoring plays', touchdown: 'touchdown', conversion: 'conversion', point: 'point', pointsFew: 'points', pointsMany: 'points',
+    teamsTitle: 'Tournament Teams', teamsCount: 'teams', scoringPlays: 'Scoring plays', touchdown: 'touchdown', conversion: 'conversion', safety: 'safety', point: 'point', pointsFew: 'points', pointsMany: 'points',
     firstHalf: '1st half', secondHalf: '2nd half', overtime: 'overtime',
   },
 };
@@ -105,7 +105,7 @@ function touchdownItems(match) {
   return scoringEvents(match).map((scoringEvent) => {
     const scoringTeam = team(scoringEvent.teamId);
     const context = [touchdownPeriod(scoringEvent.period), scoringEvent.clock].filter(Boolean).join(' · ');
-    const eventName = scoringEvent.type === 'touchdown' ? t('touchdown') : t('conversion');
+    const eventName = t(scoringEvent.type);
     const pointsWord = scoringEvent.points === 1 ? t('point') : (scoringEvent.points === 2 ? t('pointsFew') : t('pointsMany'));
     const pointsLabel = `${scoringEvent.points} ${pointsWord}`;
     return `<li class="touchdown-event">
@@ -143,7 +143,7 @@ function flagFootballIcon() {
 function liveCard(match) {
   const home = team(match.homeTeamId);
   const away = team(match.awayTeamId);
-  const period = match.status === 'halftime' ? t('halftime') : (match.period || t('notSet'));
+  const period = match.status === 'halftime' ? t('halftime') : (touchdownPeriod(match.period) || t('notSet'));
   const gameClock = match.clock || '--:--';
   const possession = match.possessionTeamId ? team(match.possessionTeamId).name : t('notSet');
   return `
@@ -168,6 +168,7 @@ function liveCard(match) {
       <dl class="game-state" aria-label="${escapeHtml(t('gameState'))}">
         <div><dt>${escapeHtml(t('period'))}</dt><dd>${escapeHtml(period)}</dd></div>
         <div><dt>${escapeHtml(t('gameClock'))}</dt><dd>${escapeHtml(gameClock)}</dd></div>
+        <div><dt>${escapeHtml(t('down'))}</dt><dd>${escapeHtml(match.down || t('notSet'))}</dd></div>
         <div><dt>${escapeHtml(t('possessionLabel'))}</dt><dd>${escapeHtml(possession)}</dd></div>
       </dl>
       ${touchdownFeed(match)}

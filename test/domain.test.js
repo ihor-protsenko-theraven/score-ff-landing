@@ -86,3 +86,17 @@ test('a conversion is worth exactly one or two points', () => {
 
   assert.throws(() => validateTournament(tournament), /реалізаці.*1 або 2/i);
 });
+
+test('a running match clock uses minutes and valid seconds', () => {
+  const tournament = tournamentWithTouchdown({ id: 'td-1', teamId: 'wolves', scorer: 'Player 7' });
+  tournament.matches[0].clock = '18:99';
+
+  assert.throws(() => validateTournament(tournament), /ігровий час/i);
+});
+
+test('a safety must belong to a team in the match', () => {
+  const tournament = tournamentWithTouchdown({ id: 'td-1', teamId: 'wolves', scorer: 'Player 7' });
+  tournament.matches[0].safeties = [{ id: 'safety-1', teamId: 'nxt', scorer: 'Player 4' }];
+
+  assert.throws(() => validateTournament(tournament), /сейфті.*команд/i);
+});

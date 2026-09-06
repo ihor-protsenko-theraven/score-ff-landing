@@ -119,6 +119,12 @@
             </svg>
             <span>Відкрити публічний сайт</span>
           </a>
+          <a href="/judge" target="_blank">
+            <svg class="admin-sidebar__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 12h10" /><path d="M14 8v8" /><path d="M18 6v12" /><circle cx="4" cy="12" r="2" />
+            </svg>
+            <span>Суддівська панель</span>
+          </a>
           <button type="button" id="logoutButton">
             <svg class="admin-sidebar__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -157,7 +163,7 @@
       </div>
       <div class="touchdown-dialog__body">
         <form class="touchdown-form" id="touchdownForm">
-          <label>Результативна дія<select id="touchdownTypeInput" name="eventType" required><option value="touchdown">Тачдаун · 6 очок</option><option value="conversion-1">Реалізація · 1 очко</option><option value="conversion-2">Реалізація · 2 очки</option></select></label>
+          <label>Результативна дія<select id="touchdownTypeInput" name="eventType" required><option value="touchdown">Тачдаун · 6 очок</option><option value="conversion-1">Реалізація · 1 очко</option><option value="conversion-2">Реалізація · 2 очки</option><option value="safety">Сейфті · 2 очки</option></select></label>
           <label>Команда<select id="touchdownTeamInput" name="teamId" required></select></label>
           <label class="touchdown-form__scorer">Хто набрав очки<input id="touchdownScorerInput" name="scorer" maxlength="80" required placeholder="Ім’я або номер гравця" autocomplete="off" /></label>
           <label>Час на табло<input id="touchdownClockInput" name="clock" maxlength="8" placeholder="05:42" inputmode="numeric" /></label>

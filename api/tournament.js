@@ -11,8 +11,10 @@ const store = createDeploymentTournamentStore({
 });
 
 export default async function handler(request, response) {
+  const adminPassword = process.env.ADMIN_PASSWORD || '';
   await handleTournamentRequest(request, response, {
     store,
-    adminPassword: process.env.ADMIN_PASSWORD || '',
+    adminPassword,
+    judgePassword: process.env.JUDGE_PASSWORD || adminPassword,
   });
 }
