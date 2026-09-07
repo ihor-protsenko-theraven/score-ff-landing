@@ -40,3 +40,51 @@ test('each team can use at most two timeouts in each half', async () => {
   assert.equal(changeTimeoutUsage(match, '1', 'home', -1), true);
   assert.equal(remainingTimeouts(match, '1', 'home'), 1);
 });
+
+test('judge console shell exposes 1-2 point conversions, 1-2 point safeties, +/-1s clock deltas, and custom clock dialog', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const path = await import('node:path');
+  const judgeHtml = await readFile(path.resolve('public/judge.html'), 'utf8');
+
+  assert.match(judgeHtml, /data-play="Реалізація \+1"/);
+  assert.match(judgeHtml, /data-play="Реалізація \+2"/);
+  assert.match(judgeHtml, /data-play="Сейфті \+1"/);
+  assert.match(judgeHtml, /data-play="Сейфті \+2"/);
+  assert.match(judgeHtml, /data-clock-delta="-1"/);
+  assert.match(judgeHtml, /data-clock-delta="1"/);
+  assert.match(judgeHtml, /id="judgeClockDialog"/);
+  assert.match(judgeHtml, /data-preset="20:00"/);
+  assert.match(judgeHtml, /data-preset="15:00"/);
+  assert.match(judgeHtml, /data-preset="12:00"/);
+  assert.match(judgeHtml, /data-preset="10:00"/);
+  assert.match(judgeHtml, /data-preset="02:00"/);
+});
+
+test('restoreRunningClock calculates elapsed seconds and recognizes expired clocks', async () => {
+  const { restoreRunningClock } = await import('../public/judge-state.js');
+
+  const start = 1_000_000;
+  const running = { running: true, startedAt: start, startedSeconds: 300 };
+
+  // 15 seconds elapsed
+  const active = restoreRunningClock(running, start + 15_000);
+  assert.equal(active?.running, true);
+  assert.equal(active?.seconds, 285);
+  assert.equal(active?.expired, false);
+
+  // 300 seconds elapsed (exact expiry)
+  const expiredExact = restoreRunningClock(running, start + 300_000);
+  assert.equal(expiredExact?.running, false);
+  assert.equal(expiredExact?.seconds, 0);
+  assert.equal(expiredExact?.expired, true);
+
+  // 350 seconds elapsed (past expiry)
+  const expiredPast = restoreRunningClock(running, start + 350_000);
+  assert.equal(expiredPast?.running, false);
+  assert.equal(expiredPast?.seconds, 0);
+  assert.equal(expiredPast?.expired, true);
+
+  // Paused clock returns null
+  assert.equal(restoreRunningClock({ running: false, seconds: 200 }), null);
+  assert.equal(restoreRunningClock(null), null);
+});

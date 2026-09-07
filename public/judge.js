@@ -4,6 +4,7 @@ import {
   halfDurationSeconds,
   parseClock,
   remainingTimeouts,
+  restoreRunningClock,
   scoreAfter,
 } from './judge-state.js';
 
@@ -18,10 +19,40 @@ const clockReset = document.querySelector('#judgeResetClock');
 const timeoutCard = document.querySelector('#judgeTimeoutCard');
 const syncIndicator = document.querySelector('#judgeSync');
 const toast = document.querySelector('#judgeToast');
+const clockDialog = document.querySelector('#judgeClockDialog');
+const openClockModalBtn = document.querySelector('#judgeOpenClockModal');
+const closeClockModalBtn = document.querySelector('#closeJudgeClockDialog');
+const clockForm = document.querySelector('#judgeClockForm');
+const clockMinutesInput = document.querySelector('#judgeClockMinutes');
+const clockSecondsInput = document.querySelector('#judgeClockSeconds');
 
 const TOKEN_KEY = 'flag-score-judge-token';
 const EXPIRY_KEY = 'flag-score-judge-expiry';
+const CLOCK_STORAGE_PREFIX = 'flag-score-judge-clock:';
 const ACTIVE_STATUSES = new Set(['live', 'halftime']);
+
+function clockStorageKey(matchId) {
+  return `${CLOCK_STORAGE_PREFIX}${matchId}`;
+}
+
+function loadStoredClock(matchId) {
+  if (!matchId) return null;
+  try {
+    const raw = localStorage.getItem(clockStorageKey(matchId));
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveStoredClock(matchId, clockData) {
+  if (!matchId) return;
+  try {
+    localStorage.setItem(clockStorageKey(matchId), JSON.stringify(clockData));
+  } catch {
+    // Ignore storage quota or disabled errors
+  }
+}
 
 const state = {
   data: null,
@@ -188,10 +219,56 @@ function renderMatch() {
 }
 
 function prepareSelectedClock() {
-  state.clockSeconds = parseClock(selectedMatch()?.clock || formatClock(halfDurationSeconds(state.data)));
+  const match = selectedMatch();
+  if (!match) return;
+
+  const defaultSeconds = parseClock(match.clock || formatClock(halfDurationSeconds(state.data)));
+  const stored = loadStoredClock(match.id);
+  const restored = match.status !== 'finished' ? restoreRunningClock(stored) : null;
+
+  if (restored) {
+    if (restored.running) {
+      state.clockRunning = true;
+      state.clockSeconds = restored.seconds;
+      state.clockStartedSeconds = restored.startedSeconds;
+      state.clockStartedAt = restored.startedAt;
+      state.lastClockSync = restored.seconds;
+      match.clock = formatClock(restored.seconds);
+
+      if (state.timerId) clearInterval(state.timerId);
+      state.timerId = setInterval(tickClock, 250);
+      queueSync();
+      return;
+    }
+
+    if (restored.expired) {
+      state.clockRunning = false;
+      state.clockSeconds = 0;
+      state.clockStartedSeconds = 0;
+      state.clockStartedAt = Date.now();
+      state.lastClockSync = 0;
+      match.clock = '00:00';
+      saveStoredClock(match.id, { running: false, seconds: 0 });
+      if (state.timerId) {
+        clearInterval(state.timerId);
+        state.timerId = null;
+      }
+      queueSync();
+      showToast('Час вийшов');
+      return;
+    }
+  }
+
+  state.clockRunning = false;
+  if (state.timerId) {
+    clearInterval(state.timerId);
+    state.timerId = null;
+  }
+  state.clockSeconds = defaultSeconds;
   state.clockStartedSeconds = state.clockSeconds;
   state.clockStartedAt = Date.now();
   state.lastClockSync = state.clockSeconds;
+  match.clock = formatClock(state.clockSeconds);
 }
 
 function judgePatch() {
@@ -257,6 +334,12 @@ function stopClock(sync = true) {
   state.clockRunning = false;
   clearInterval(state.timerId);
   state.timerId = null;
+  if (state.matchId) {
+    saveStoredClock(state.matchId, {
+      running: false,
+      seconds: state.clockSeconds,
+    });
+  }
   renderClock();
   if (sync) queueSync();
 }
@@ -287,6 +370,13 @@ function toggleClock() {
   state.clockStartedSeconds = state.clockSeconds;
   state.clockStartedAt = Date.now();
   state.lastClockSync = state.clockSeconds;
+  if (state.matchId) {
+    saveStoredClock(state.matchId, {
+      running: true,
+      startedAt: state.clockStartedAt,
+      startedSeconds: state.clockStartedSeconds,
+    });
+  }
   state.timerId = setInterval(tickClock, 250);
   renderMatch();
   queueSync();
@@ -298,6 +388,14 @@ function adjustClock(delta) {
   state.clockStartedSeconds = state.clockSeconds;
   state.clockStartedAt = Date.now();
   selectedMatch().clock = formatClock(state.clockSeconds);
+  if (state.matchId) {
+    saveStoredClock(state.matchId, {
+      running: state.clockRunning,
+      startedAt: state.clockStartedAt,
+      startedSeconds: state.clockStartedSeconds,
+      seconds: state.clockSeconds,
+    });
+  }
   renderClock();
   queueSync();
 }
@@ -371,9 +469,67 @@ clockReset.addEventListener('click', () => {
   stopClock(false);
   state.clockSeconds = resetSeconds;
   state.clockStartedSeconds = state.clockSeconds;
+  state.clockStartedAt = Date.now();
   selectedMatch().clock = formatClock(state.clockSeconds);
+  if (state.matchId) {
+    saveStoredClock(state.matchId, {
+      running: false,
+      seconds: resetSeconds,
+    });
+  }
   renderClock();
   queueSync();
+});
+
+function openClockDialog() {
+  if (!selectedMatch()) return;
+  const currentSeconds = effectiveClockSeconds();
+  const mins = Math.floor(currentSeconds / 60);
+  const secs = currentSeconds % 60;
+  if (clockMinutesInput) clockMinutesInput.value = mins;
+  if (clockSecondsInput) clockSecondsInput.value = String(secs).padStart(2, '0');
+  clockDialog?.showModal();
+  clockMinutesInput?.focus();
+  clockMinutesInput?.select();
+}
+
+function closeClockDialog() {
+  clockDialog?.close();
+}
+
+clockOutput?.addEventListener('click', openClockDialog);
+openClockModalBtn?.addEventListener('click', openClockDialog);
+closeClockModalBtn?.addEventListener('click', closeClockDialog);
+
+document.querySelector('#judgeClockPresets')?.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-preset]');
+  if (!button) return;
+  const [mins, secs] = button.dataset.preset.split(':').map(Number);
+  if (clockMinutesInput) clockMinutesInput.value = mins;
+  if (clockSecondsInput) clockSecondsInput.value = String(secs).padStart(2, '0');
+});
+
+clockForm?.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const mins = Math.max(0, Math.min(99, parseInt(clockMinutesInput?.value, 10) || 0));
+  const secs = Math.max(0, Math.min(59, parseInt(clockSecondsInput?.value, 10) || 0));
+  const targetSeconds = mins * 60 + secs;
+  stopClock(false);
+  state.clockSeconds = targetSeconds;
+  state.clockStartedSeconds = targetSeconds;
+  state.clockStartedAt = Date.now();
+  const match = selectedMatch();
+  if (match) match.clock = formatClock(targetSeconds);
+  if (state.matchId) {
+    saveStoredClock(state.matchId, {
+      running: false,
+      seconds: targetSeconds,
+    });
+  }
+  renderClock();
+  queueSync();
+  closeClockDialog();
+  showToast(`Час встановлено на ${formatClock(targetSeconds)}`);
 });
 
 document.querySelector('#judgeDowns').addEventListener('click', (event) => {
@@ -445,6 +601,15 @@ window.addEventListener('online', () => {
 });
 window.addEventListener('pagehide', () => {
   if (!state.token || !selectedMatch()) return;
+  settleClock();
+  if (state.matchId) {
+    saveStoredClock(state.matchId, {
+      running: state.clockRunning,
+      startedAt: state.clockStartedAt,
+      startedSeconds: state.clockStartedSeconds,
+      seconds: state.clockSeconds,
+    });
+  }
   const patch = judgePatch();
   fetch('/api/tournament', {
     method: 'PATCH',
@@ -452,6 +617,18 @@ window.addEventListener('pagehide', () => {
     body: JSON.stringify({ matchId: state.matchId, patch }),
     keepalive: true,
   }).catch(() => {});
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && state.clockRunning) {
+    const seconds = effectiveClockSeconds();
+    if (seconds === 0) {
+      stopClock();
+      showToast('Час вийшов');
+    } else {
+      renderClock();
+    }
+  }
 });
 
 setInterval(() => {

@@ -43,3 +43,24 @@ export function changeTimeoutUsage(match, period, side, delta) {
   match.timeouts[half][side] = next;
   return true;
 }
+
+export function restoreRunningClock(storedClock, now = Date.now()) {
+  if (
+    !storedClock
+    || typeof storedClock !== 'object'
+    || !storedClock.running
+    || typeof storedClock.startedAt !== 'number'
+    || typeof storedClock.startedSeconds !== 'number'
+  ) {
+    return null;
+  }
+  const elapsed = Math.floor(Math.max(0, now - storedClock.startedAt) / 1000);
+  const remaining = Math.max(0, storedClock.startedSeconds - elapsed);
+  return {
+    running: remaining > 0,
+    seconds: remaining,
+    startedSeconds: storedClock.startedSeconds,
+    startedAt: storedClock.startedAt,
+    expired: remaining === 0,
+  };
+}
