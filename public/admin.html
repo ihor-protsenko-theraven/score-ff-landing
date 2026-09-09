@@ -21,19 +21,19 @@
             <span class="brand__sport-badge">FLAG FOOTBALL 5v5</span>
           </div>
         </a>
-        <span class="kicker">CONTROL ROOM</span>
-        <h1>Керуйте турніром без зайвого шуму.</h1>
-        <p>Оновлюйте рахунок, статус матчу, розклад і склад учасників. Зміни одразу з’являться на публічній сторінці.</p>
+        <span class="kicker" data-i18n="controlRoom">CONTROL ROOM</span>
+        <h1 data-i18n="loginTitle">Керуйте турніром без зайвого шуму.</h1>
+        <p data-i18n="loginDesc">Оновлюйте рахунок, статус матчу, розклад і склад учасників. Зміни одразу з’являться на публічній сторінці.</p>
         <form id="loginForm" class="login-form">
           <input class="visually-hidden" name="username" type="text" autocomplete="username" value="admin" readonly tabindex="-1" aria-label="Користувач" />
           <label>
-            Пароль адміністратора
-            <input id="passwordInput" name="password" type="password" autocomplete="current-password" required placeholder="Введіть пароль" />
+            <span data-i18n="adminPassword">Пароль адміністратора</span>
+            <input id="passwordInput" name="password" type="password" autocomplete="current-password" required placeholder="Введіть пароль" data-i18n-placeholder="enterPassword" />
           </label>
-          <button class="button button--primary button--wide" type="submit">Увійти в адмінку <span>→</span></button>
+          <button class="button button--primary button--wide" type="submit"><span data-i18n="loginBtn">Увійти в адмінку</span> <span>→</span></button>
           <p class="form-error" id="loginError" role="alert"></p>
         </form>
-        <a class="back-link" href="/">← Повернутися на сайт</a>
+        <a class="back-link" href="/" data-i18n="backToSite">← Повернутися на сайт</a>
       </div>
       <div class="login-visual" aria-hidden="true">
         <div class="field-lines"></div>
@@ -57,7 +57,7 @@
           </div>
         </a>
         <div class="admin-sidebar__event">
-          <span>ПОТОЧНИЙ ТУРНІР</span>
+          <span data-i18n="currentTournament">ПОТОЧНИЙ ТУРНІР</span>
           <strong id="adminEventName">ЧУФФ-Мікс 2026</strong>
         </div>
         <nav class="admin-nav" aria-label="Адмін-розділи">
@@ -70,7 +70,7 @@
                 <rect x="3" y="16" width="7" height="5" rx="1" />
               </svg>
             </span>
-            <span class="admin-nav__label">Огляд</span>
+            <span class="admin-nav__label" data-i18n="navOverview">Огляд</span>
           </button>
           <button type="button" data-section="matches">
             <span class="admin-nav__icon" aria-hidden="true">
@@ -87,7 +87,7 @@
                 <line x1="16" y1="18" x2="16.01" y2="18" />
               </svg>
             </span>
-            <span class="admin-nav__label">Матчі</span>
+            <span class="admin-nav__label" data-i18n="navMatches">Матчі</span>
           </button>
           <button type="button" data-section="teams">
             <span class="admin-nav__icon" aria-hidden="true">
@@ -98,7 +98,7 @@
                 <path d="M16 3.13a4 4 0 0 1 0 7.75" />
               </svg>
             </span>
-            <span class="admin-nav__label">Команди</span>
+            <span class="admin-nav__label" data-i18n="navTeams">Команди</span>
           </button>
           <button type="button" data-section="settings">
             <span class="admin-nav__icon" aria-hidden="true">
@@ -107,7 +107,7 @@
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
               </svg>
             </span>
-            <span class="admin-nav__label">Турнір і тексти</span>
+            <span class="admin-nav__label" data-i18n="navSettings">Турнір і тексти</span>
           </button>
         </nav>
         <div class="admin-sidebar__bottom">
@@ -117,13 +117,13 @@
               <polyline points="15 3 21 3 21 9" />
               <line x1="10" y1="14" x2="21" y2="3" />
             </svg>
-            <span>Відкрити публічний сайт</span>
+            <span data-i18n="publicSiteLink">Відкрити публічний сайт</span>
           </a>
           <a href="/judge" target="_blank">
             <svg class="admin-sidebar__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M4 12h10" /><path d="M14 8v8" /><path d="M18 6v12" /><circle cx="4" cy="12" r="2" />
             </svg>
-            <span>Суддівська панель</span>
+            <span data-i18n="judgePanelLink">Суддівська панель</span>
           </a>
           <button type="button" id="logoutButton">
             <svg class="admin-sidebar__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -131,7 +131,7 @@
               <polyline points="16 17 21 12 16 7" />
               <line x1="21" y1="12" x2="9" y2="12" />
             </svg>
-            <span>Вийти</span>
+            <span data-i18n="logoutBtn">Вийти</span>
           </button>
         </div>
       </aside>
@@ -143,15 +143,19 @@
             <h1 id="adminSectionTitle">Огляд турніру</h1>
           </div>
           <div class="admin-header__actions">
-            <span class="save-state" id="saveState">Усі зміни збережено</span>
-            <button class="button button--primary" id="saveButton" type="button">Зберегти зміни</button>
+            <div class="segmented judge-lang-toggle admin-lang-toggle" aria-label="Мова інтерфейсу">
+              <button type="button" data-lang="uk">UK</button>
+              <button type="button" data-lang="en">EN</button>
+            </div>
+            <span class="save-state" id="saveState" data-i18n="allSaved">Усі зміни збережено</span>
+            <button class="button button--primary" id="saveButton" type="button" data-i18n="saveBtn">Зберегти зміни</button>
           </div>
         </header>
         <div class="admin-mobile-nav" id="adminMobileNav">
           <nav class="admin-mobile-sections" id="adminMobileSections" aria-label="Адмін-розділи"></nav>
           <nav class="admin-mobile-tools" aria-label="Швидкі переходи">
-            <a href="/" target="_blank" rel="noopener">↗ Публічний сайт</a>
-            <a href="/judge" target="_blank" rel="noopener">⚑ Суддівська панель</a>
+            <a href="/" target="_blank" rel="noopener">↗ <span data-i18n="publicSiteLinkShort">Публічний сайт</span></a>
+            <a href="/judge" target="_blank" rel="noopener">⚑ <span data-i18n="judgePanelLink">Суддівська панель</span></a>
           </nav>
         </div>
         <section class="admin-content" id="adminContent" aria-live="polite"></section>
@@ -162,24 +166,24 @@
       <div class="info-dialog__top">
         <div>
           <span class="kicker">MATCH STATS · SCORING</span>
-          <h2 id="touchdownDialogTitle">Статистика матчу</h2>
+          <h2 id="touchdownDialogTitle" data-i18n="matchStats">Статистика матчу</h2>
           <p class="touchdown-dialog__match" id="touchdownDialogMatch"></p>
         </div>
         <button class="icon-button" id="closeTouchdownDialog" type="button" aria-label="Закрити">×</button>
       </div>
       <div class="touchdown-dialog__body">
         <form class="touchdown-form" id="touchdownForm">
-          <label>Результативна дія<select id="touchdownTypeInput" name="eventType" required><option value="touchdown">Тачдаун · 6 очок</option><option value="conversion-1">Реалізація · 1 очко</option><option value="conversion-2">Реалізація · 2 очки</option><option value="safety">Сейфті · 2 очки</option></select></label>
-          <label>Команда<select id="touchdownTeamInput" name="teamId" required></select></label>
-          <label class="touchdown-form__scorer">Хто набрав очки<input id="touchdownScorerInput" name="scorer" maxlength="80" required placeholder="Ім’я або номер гравця" autocomplete="off" /></label>
-          <label>Час на табло<input id="touchdownClockInput" name="clock" maxlength="8" placeholder="05:42" inputmode="numeric" /></label>
-          <label>Період<select id="touchdownPeriodInput" name="period"><option value="1">1 половина</option><option value="2">2 половина</option><option value="OT">Овертайм</option></select></label>
-          <p class="touchdown-form__hint" id="touchdownDialogHint">Подія додає автора й тип набору очок до статистики, але не змінює рахунок автоматично.</p>
+          <label><span data-i18n="scoringAction">Результативна дія</span><select id="touchdownTypeInput" name="eventType" required><option value="touchdown" data-i18n="tdOption">Тачдаун · 6 очок</option><option value="conversion-1" data-i18n="conv1Option">Реалізація · 1 очко</option><option value="conversion-2" data-i18n="conv2Option">Реалізація · 2 очки</option><option value="safety" data-i18n="safetyOption">Сейфті · 2 очки</option></select></label>
+          <label><span data-i18n="teamLabel">Команда</span><select id="touchdownTeamInput" name="teamId" required></select></label>
+          <label class="touchdown-form__scorer"><span data-i18n="scorerLabel">Хто набрав очки</span><input id="touchdownScorerInput" name="scorer" maxlength="80" required placeholder="Ім’я або номер гравця" data-i18n-placeholder="scorerPlaceholder" autocomplete="off" /></label>
+          <label><span data-i18n="clockLabel">Час на табло</span><input id="touchdownClockInput" name="clock" maxlength="8" placeholder="05:42" inputmode="numeric" /></label>
+          <label><span data-i18n="periodLabel">Період</span><select id="touchdownPeriodInput" name="period"><option value="1" data-i18n="half1">1 половина</option><option value="2" data-i18n="half2">2 половина</option><option value="OT" data-i18n="overtime">Овертайм</option></select></label>
+          <p class="touchdown-form__hint" id="touchdownDialogHint" data-i18n="statsHint">Подія додає автора й тип набору очок до статистики, але не змінює рахунок автоматично.</p>
           <p class="form-error touchdown-form__error" id="touchdownFormError" role="alert"></p>
-          <button class="button button--primary" type="submit">+ Додати подію</button>
+          <button class="button button--primary" type="submit"><span data-i18n="addEventBtn">+ Додати подію</span></button>
         </form>
         <section class="touchdown-admin-log" aria-labelledby="touchdownLogTitle">
-          <div class="touchdown-admin-log__heading"><h3 id="touchdownLogTitle">Результативні дії</h3><span id="touchdownLogCount">0</span></div>
+          <div class="touchdown-admin-log__heading"><h3 id="touchdownLogTitle" data-i18n="scoringActionsList">Результативні дії</h3><span id="touchdownLogCount">0</span></div>
           <div id="touchdownLog"></div>
         </section>
       </div>

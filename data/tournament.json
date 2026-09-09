@@ -7,7 +7,10 @@
     "venue": "Житомир · вул. Коростишівська, 15",
     "venueUrl": "https://maps.app.goo.gl/SdcT7nBRSaUqjQb68",
     "dates": "12 вересня з 11:00 · 13 вересня з 09:00",
-    "updatedAt": "2026-09-07T20:52:19.237Z"
+    "updatedAt": "2026-09-09T22:42:41.289Z"
+  },
+  "settings": {
+    "halfDurationMinutes": 20
   },
   "divisions": [
     {
@@ -22,14 +25,14 @@
       "name": "Бізони",
       "short": "БІЗ",
       "division": "mixed",
-      "color": "#ff0000"
+      "color": "#660000"
     },
     {
       "id": "vovky",
       "name": "Вовки",
       "short": "ВОВ",
       "division": "mixed",
-      "color": "#000000"
+      "color": "#6e6e6e"
     },
     {
       "id": "u15",
@@ -67,13 +70,13 @@
       "homeTeamId": "bizony",
       "awayTeamId": "vovky",
       "homeScore": 24,
-      "awayScore": 11,
-      "status": "live",
+      "awayScore": 16,
+      "status": "finished",
       "date": "2026-09-06",
       "time": "10:00",
       "field": "Поле 1",
       "round": "Груповий етап",
-      "clock": "20:00",
+      "clock": "15:00",
       "touchdowns": [
         {
           "id": "af515e69-75e5-495d-bee9-e9fdf9dedd37",
@@ -95,10 +98,57 @@
           "points": 1
         }
       ],
+      "down": 2,
+      "period": "OT",
+      "lastPlay": "Скасовано тайм-аут · Вовки · 1 половина",
+      "judgeUpdatedAt": "2026-09-09T22:40:38.069Z",
+      "possessionTeamId": "bizony",
+      "timeouts": {
+        "1": {
+          "home": 0,
+          "away": 0
+        }
+      }
+    },
+    {
+      "id": "match-1788992703190",
+      "division": "mixed",
+      "homeTeamId": "u15",
+      "awayTeamId": "orly",
+      "homeScore": 7,
+      "awayScore": 8,
+      "status": "live",
+      "date": "2026-09-09",
+      "time": "10:00",
+      "field": "Поле 1",
+      "round": "Груповий етап",
+      "clock": "20:00",
+      "touchdowns": [],
+      "conversions": [],
+      "safeties": [],
+      "possessionTeamId": "u15",
       "down": 1,
       "period": "1",
-      "lastPlay": "Тачдаун · Бізони",
-      "judgeUpdatedAt": "2026-09-07T20:52:19.237Z"
+      "lastPlay": "Реалізація +2 · Орли",
+      "judgeUpdatedAt": "2026-09-09T22:25:59.391Z"
+    },
+    {
+      "id": "match-1788993158979",
+      "division": "mixed",
+      "homeTeamId": "levy",
+      "awayTeamId": "lisoruby",
+      "homeScore": 8,
+      "awayScore": 12,
+      "status": "live",
+      "date": "2026-09-09",
+      "time": "10:00",
+      "field": "Поле 2",
+      "round": "Груповий етап",
+      "clock": "20:00",
+      "touchdowns": [],
+      "conversions": [],
+      "safeties": [],
+      "possessionTeamId": "lisoruby"
     }
   ],
   "content": {

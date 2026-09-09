@@ -6,6 +6,8 @@ import {
   remainingTimeouts,
   restoreRunningClock,
   scoreAfter,
+  timeoutControlState,
+  togglePossession,
 } from './judge-state.js';
 
 const judgeLogin = document.querySelector('#judgeLogin');
@@ -25,6 +27,77 @@ const closeClockModalBtn = document.querySelector('#closeJudgeClockDialog');
 const clockForm = document.querySelector('#judgeClockForm');
 const clockMinutesInput = document.querySelector('#judgeClockMinutes');
 const clockSecondsInput = document.querySelector('#judgeClockSeconds');
+
+const copy = {
+  uk: {
+    syncReady: 'Синхронізовано', syncSaving: 'Зберігаємо…', syncError: 'Помилка синхронізації', syncOffline: 'Немає мережі', syncReconnect: 'Відновлюємо зв’язок…',
+    quickAccess: 'ШВИДКИЙ ДОСТУП', refereePanel: 'Суддівська панель', loginHint: 'Введіть пароль один раз. Сесія збережеться на цьому пристрої на 18 годин.',
+    refereePassword: 'Пароль судді', enterPassword: 'Введіть пароль', openMatchBtn: 'Відкрити матч', publicPageLink: '← Публічна сторінка',
+    matchLabel: 'Матч', matchSelectAria: 'Вибір матчу',
+    noMatchesTitle: 'Матчів поки немає', noMatchesDesc: 'Адміністратор має спочатку додати матч до турніру.', refreshBtn: 'Оновити',
+    timeLabel: 'Час', clickToSetTimeTitle: 'Натисніть, щоб задати час', startBtn: 'Старт', pauseBtn: 'Пауза', setTimeBtn: 'Задати час',
+    gameStateLabel: 'Стан розіграшу', downLabel: 'Даун', periodLabel: 'Період', possessionLabel: 'Володіння', noneLabel: 'Нічиє',
+    scoreLabel: 'Рахунок', scoreHint: 'Натисніть на картку команди, щоб змінити володіння. Авторів занесень паралельно додає статистик в адмінці.',
+    correctionMinus1: '−1', timeoutsLabel: 'Тайм-аути', timeoutsHint: 'По 2 на кожну команду в кожній половині. Натискання зупиняє ігровий час.', overtimeTimeoutHint: 'В овертаймі командні тайм-аути недоступні.',
+    leftLabel: 'залишилось', undoBtn: 'Скасувати', timeoutBtn: 'Тайм-аут',
+    matchStatusLabel: 'Статус матчу', liveBtn: 'Наживо', halftimeBtn: 'Перерва', finishedBtn: 'Завершено',
+    setTimeTitle: 'Задати час', closeBtn: 'Закрити', setTimeHint: 'Вкажіть потрібний час матчу або виберіть швидкий пресет:',
+    minutesLabel: 'Хвилини', secondsLabel: 'Секунди', setTimeSubmit: 'Встановити час',
+    brandLink: 'FLAG SCORE — публічна сторінка', logout: 'Вийти із суддівської панелі',
+    half: 'половина', overtime: 'OT', timeOutMsg: 'Час вийшов',
+    cancelTimeoutMsg: 'Скасовано тайм-аут', timeoutLimitError: 'Ліміт тайм-аутів для цієї половини вичерпано',
+    scheduled: 'Заплановано', liveStatus: 'Наживо', halftime: 'Перерва', finished: 'Завершено',
+    setTimerPrompt: 'Поставити таймер на', setTimeError: 'Спочатку встановіть час', setTimeSuccess: 'Час встановлено на',
+    sessionExpired: 'Сесія завершилася. Введіть пароль ще раз.', wrongPassword: 'Невірний пароль',
+    loadError: 'Не вдалося завантажити турнір', syncFailed: 'Не вдалося синхронізувати матч',
+    homeBtn: 'Господарі', awayBtn: 'Гості', togglePossessionTitle: 'Змінити володіння',
+  },
+  en: {
+    syncReady: 'Synced', syncSaving: 'Saving…', syncError: 'Sync error', syncOffline: 'Offline', syncReconnect: 'Reconnecting…',
+    quickAccess: 'QUICK ACCESS', refereePanel: 'Referee Panel', loginHint: 'Enter password once. Session is saved on this device for 18 hours.',
+    refereePassword: 'Referee Password', enterPassword: 'Enter password', openMatchBtn: 'Open Match', publicPageLink: '← Public Page',
+    matchLabel: 'Match', matchSelectAria: 'Match selection',
+    noMatchesTitle: 'No matches yet', noMatchesDesc: 'The administrator must add a match to the tournament first.', refreshBtn: 'Refresh',
+    timeLabel: 'Clock', clickToSetTimeTitle: 'Click to set time', startBtn: 'Start', pauseBtn: 'Pause', setTimeBtn: 'Set time',
+    gameStateLabel: 'Game State', downLabel: 'Down', periodLabel: 'Period', possessionLabel: 'Possession', noneLabel: 'None',
+    scoreLabel: 'Score', scoreHint: 'Tap a team card to change possession. The statistician records scorers in the admin panel.',
+    correctionMinus1: '−1', timeoutsLabel: 'Timeouts', timeoutsHint: '2 per team per half. Clicking stops the game clock.', overtimeTimeoutHint: 'Team timeouts are unavailable in overtime.',
+    leftLabel: 'left', undoBtn: 'Undo', timeoutBtn: 'Timeout',
+    matchStatusLabel: 'Match Status', liveBtn: 'Live', halftimeBtn: 'Halftime', finishedBtn: 'Finished',
+    setTimeTitle: 'Set Time', closeBtn: 'Close', setTimeHint: 'Enter match time or select a quick preset:',
+    minutesLabel: 'Minutes', secondsLabel: 'Seconds', setTimeSubmit: 'Set Time',
+    brandLink: 'FLAG SCORE — public page', logout: 'Log out of referee panel',
+    half: 'half', overtime: 'OT', timeOutMsg: 'Time is up',
+    cancelTimeoutMsg: 'Canceled timeout', timeoutLimitError: 'Timeout limit reached for this half',
+    scheduled: 'Scheduled', liveStatus: 'Live', halftime: 'Halftime', finished: 'Finished',
+    setTimerPrompt: 'Set timer to', setTimeError: 'Set the time first', setTimeSuccess: 'Time set to',
+    sessionExpired: 'Session expired. Please enter your password again.', wrongPassword: 'Wrong password',
+    loadError: 'Failed to load tournament', syncFailed: 'Failed to sync match',
+    homeBtn: 'Home', awayBtn: 'Away', togglePossessionTitle: 'Toggle possession',
+  }
+};
+
+let language = localStorage.getItem('flag-score-judge-language') || 'uk';
+const t = (key) => copy[language][key] || key;
+
+function updateChrome() {
+  document.documentElement.lang = language;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+    el.setAttribute('aria-label', t(el.dataset.i18nAria));
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.setAttribute('placeholder', t(el.dataset.i18nPlaceholder));
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    el.setAttribute('title', t(el.dataset.i18nTitle));
+  });
+  document.querySelectorAll('.judge-lang-toggle button').forEach(btn => {
+    btn.setAttribute('aria-pressed', String(btn.dataset.lang === language));
+  });
+}
 
 const TOKEN_KEY = 'flag-score-judge-token';
 const EXPIRY_KEY = 'flag-score-judge-expiry';
@@ -115,7 +188,7 @@ function showApp() {
 }
 
 function statusLabel(status) {
-  return ({ scheduled: 'Заплановано', live: 'Наживо', halftime: 'Перерва', finished: 'Завершено' })[status] || status;
+  return ({ scheduled: t('scheduled'), live: t('liveStatus'), halftime: t('halftime'), finished: t('finished') })[status] || status;
 }
 
 function orderedMatches() {
@@ -166,8 +239,8 @@ function renderClock() {
   clockOutput.textContent = formatClock(seconds);
   clockOutput.classList.toggle('is-running', state.clockRunning);
   clockToggle.setAttribute('aria-pressed', String(state.clockRunning));
-  clockToggle.innerHTML = state.clockRunning ? '<span aria-hidden="true">Ⅱ</span> Пауза' : '<span aria-hidden="true">▶</span> Старт';
-  clockReset.textContent = `Поставити ${formatClock(halfDurationSeconds(state.data))}`;
+  clockToggle.innerHTML = state.clockRunning ? `<span aria-hidden="true">Ⅱ</span> <span data-i18n="pauseBtn">${t('pauseBtn')}</span>` : `<span aria-hidden="true">▶</span> <span data-i18n="startBtn">${t('startBtn')}</span>`;
+  clockReset.textContent = `${language === 'uk' ? 'Поставити' : 'Set to'} ${formatClock(halfDurationSeconds(state.data))}`;
 }
 
 function renderPressedState(selector, value, attribute) {
@@ -178,16 +251,18 @@ function renderPressedState(selector, value, attribute) {
 
 function renderTimeouts(match, homeName, awayName) {
   const period = String(match.period || '1');
-  timeoutCard.hidden = !['1', '2'].includes(period);
-  if (timeoutCard.hidden) return;
-  document.querySelector('#judgeTimeoutPeriod').textContent = `${period} половина`;
+  const isRegulationHalf = ['1', '2'].includes(period);
+  timeoutCard.hidden = false;
+  timeoutCard.classList.toggle('is-unavailable', !isRegulationHalf);
+  document.querySelector('#judgeTimeoutPeriod').textContent = period === 'OT' ? t('overtime') : `${period} ${t('half')}`;
+  document.querySelector('#judgeTimeoutHint').textContent = isRegulationHalf ? t('timeoutsHint') : t('overtimeTimeoutHint');
   document.querySelector('#judgeHomeTimeoutName').textContent = homeName;
   document.querySelector('#judgeAwayTimeoutName').textContent = awayName;
   for (const side of ['home', 'away']) {
-    const remaining = remainingTimeouts(match, period, side);
-    document.querySelector(`#judge${side === 'home' ? 'Home' : 'Away'}Timeouts`).textContent = remaining;
-    timeoutCard.querySelector(`[data-timeout-side="${side}"][data-timeout-action="use"]`).disabled = remaining === 0;
-    timeoutCard.querySelector(`[data-timeout-side="${side}"][data-timeout-action="undo"]`).disabled = remaining === 2;
+    const controls = timeoutControlState(match, period, side);
+    document.querySelector(`#judge${side === 'home' ? 'Home' : 'Away'}Timeouts`).textContent = controls.remaining;
+    timeoutCard.querySelector(`[data-timeout-side="${side}"][data-timeout-action="use"]`).disabled = !controls.canUse;
+    timeoutCard.querySelector(`[data-timeout-side="${side}"][data-timeout-action="undo"]`).disabled = !controls.canUndo;
   }
 }
 
@@ -211,6 +286,15 @@ function renderMatch() {
   renderPressedState('[data-period]', match.period || '1', 'period');
   renderPressedState('[data-match-status]', match.status, 'matchStatus');
   renderTimeouts(match, homeName, awayName);
+  document.querySelectorAll('[data-possession-side]').forEach((button) => {
+    const isHome = button.dataset.possessionSide === 'home';
+    const teamId = isHome ? match.homeTeamId : match.awayTeamId;
+    const name = isHome ? homeName : awayName;
+    const isActive = match.possessionTeamId === teamId;
+    button.setAttribute('aria-pressed', String(isActive));
+    button.setAttribute('aria-label', `${t('togglePossessionTitle')}: ${name}`);
+    button.closest('.judge-team')?.classList.toggle('is-possession', isActive);
+  });
   document.querySelectorAll('[data-score-side]').forEach((button) => {
     const scoringTeam = button.dataset.scoreSide === 'home' ? homeName : awayName;
     button.setAttribute('aria-label', `${button.dataset.play}, ${scoringTeam}`);
@@ -254,7 +338,7 @@ function prepareSelectedClock() {
         state.timerId = null;
       }
       queueSync();
-      showToast('Час вийшов');
+      showToast(t('timeOutMsg'));
       return;
     }
   }
@@ -281,6 +365,7 @@ function judgePatch() {
     clock: match.clock,
     down: match.down || 1,
     period: match.period || '1',
+    possessionTeamId: match.possessionTeamId || null,
     status: match.status,
     lastPlay: match.lastPlay || '',
     timeouts: match.timeouts,
@@ -296,10 +381,10 @@ async function sendPatch(matchId, patch) {
   const result = await response.json();
   if (response.status === 401) {
     clearSession();
-    showLogin('Сесія завершилася. Введіть пароль ще раз.');
-    throw new Error(result.error || 'Сесія завершилася');
+    showLogin(t('sessionExpired'));
+    throw new Error(result.error || t('sessionExpired'));
   }
-  if (!response.ok) throw new Error(result.error || 'Не вдалося синхронізувати матч');
+  if (!response.ok) throw new Error(result.error || t('syncFailed'));
   const match = state.data?.matches.find((item) => item.id === matchId);
   if (match) match.judgeUpdatedAt = result.match?.judgeUpdatedAt;
 }
@@ -316,10 +401,10 @@ function queueSync() {
   state.syncChain = operation.catch(() => {});
   operation
     .then(() => {
-      if (state.pendingSaves === 1) setSyncState('ready', 'Синхронізовано');
+      if (state.pendingSaves === 1) setSyncState('ready', t('syncReady'));
     })
     .catch((error) => {
-      setSyncState('error', navigator.onLine ? 'Помилка синхронізації' : 'Немає мережі');
+      setSyncState('error', navigator.onLine ? t('syncError') : t('syncOffline'));
       showToast(error.message, 'error');
     })
     .finally(() => {
@@ -349,7 +434,7 @@ function tickClock() {
   renderClock();
   if (seconds === 0) {
     stopClock();
-    showToast('Час вийшов');
+    showToast(t('timeOutMsg'));
     return;
   }
   if (Math.abs(seconds - state.lastClockSync) >= 5) {
@@ -363,7 +448,7 @@ function toggleClock() {
     stopClock();
     return;
   }
-  if (state.clockSeconds <= 0) return showToast('Спочатку встановіть час', 'error');
+  if (state.clockSeconds <= 0) return showToast(t('setTimeError'), 'error');
   const match = selectedMatch();
   if (['scheduled', 'halftime'].includes(match.status)) match.status = 'live';
   state.clockRunning = true;
@@ -409,10 +494,11 @@ async function loadTournament({ quiet = false } = {}) {
     renderMatchPicker();
     prepareSelectedClock();
     renderMatch();
-    if (!quiet) setSyncState('ready', 'Синхронізовано');
+    updateChrome();
+    if (!quiet) setSyncState('ready', t('syncReady'));
   } catch (error) {
-    setSyncState('error', 'Немає зв’язку');
-    if (!quiet) showToast(error.message, 'error');
+    setSyncState('error', navigator.onLine ? t('syncError') : t('syncOffline'));
+    if (!quiet) showToast(t('loadError'), 'error');
   }
 }
 
@@ -422,7 +508,7 @@ async function authenticate(password) {
     headers: { 'X-Judge-Password': password },
   });
   const result = await response.json();
-  if (!response.ok) throw new Error(result.error || 'Невірний пароль');
+  if (!response.ok) throw new Error(result.error || t('wrongPassword'));
   state.token = result.token;
   state.expiresAt = result.expiresAt;
   localStorage.setItem(TOKEN_KEY, result.token);
@@ -465,7 +551,7 @@ document.querySelectorAll('[data-clock-delta]').forEach((button) => {
 clockReset.addEventListener('click', () => {
   const resetSeconds = halfDurationSeconds(state.data);
   const resetClock = formatClock(resetSeconds);
-  if (state.clockSeconds !== 0 && !confirm(`Поставити таймер на ${resetClock}?`)) return;
+  if (state.clockSeconds !== 0 && !confirm(`${t('setTimerPrompt')} ${resetClock}?`)) return;
   stopClock(false);
   state.clockSeconds = resetSeconds;
   state.clockStartedSeconds = state.clockSeconds;
@@ -529,7 +615,7 @@ clockForm?.addEventListener('submit', (event) => {
   renderClock();
   queueSync();
   closeClockDialog();
-  showToast(`Час встановлено на ${formatClock(targetSeconds)}`);
+  showToast(`${t('setTimeSuccess')} ${formatClock(targetSeconds)}`);
 });
 
 document.querySelector('#judgeDowns').addEventListener('click', (event) => {
@@ -556,18 +642,26 @@ timeoutCard.addEventListener('click', (event) => {
   const period = String(match.period || '1');
   const delta = button.dataset.timeoutAction === 'use' ? 1 : -1;
   if (!changeTimeoutUsage(match, period, button.dataset.timeoutSide, delta)) {
-    showToast('Ліміт тайм-аутів для цієї половини вичерпано', 'error');
+    showToast(t('timeoutLimitError'), 'error');
     return;
   }
   stopClock(false);
   const timeoutTeam = teamName(button.dataset.timeoutSide === 'home' ? match.homeTeamId : match.awayTeamId);
-  match.lastPlay = `${delta > 0 ? 'Тайм-аут' : 'Скасовано тайм-аут'} · ${timeoutTeam} · ${period} половина`;
+  match.lastPlay = `${delta > 0 ? t('timeoutBtn') : t('cancelTimeoutMsg')} · ${timeoutTeam} · ${period === 'OT' ? t('overtime') : `${period} ${t('half')}`}`;
   renderMatch();
   queueSync();
   navigator.vibrate?.(30);
 });
 
 document.querySelector('.judge-scoreboard').addEventListener('click', (event) => {
+  const possessionButton = event.target.closest('[data-possession-side]');
+  if (possessionButton) {
+    togglePossession(selectedMatch(), possessionButton.dataset.possessionSide);
+    renderMatch();
+    queueSync();
+    navigator.vibrate?.(20);
+    return;
+  }
   const button = event.target.closest('[data-score-side]');
   if (!button) return;
   const match = selectedMatch();
@@ -596,7 +690,7 @@ document.querySelector('#judgeLogout').addEventListener('click', () => {
 });
 
 window.addEventListener('online', () => {
-  setSyncState('saving', 'Відновлюємо зв’язок…');
+  setSyncState('saving', t('syncReconnect'));
   queueSync();
 });
 window.addEventListener('pagehide', () => {
@@ -624,11 +718,20 @@ document.addEventListener('visibilitychange', () => {
     const seconds = effectiveClockSeconds();
     if (seconds === 0) {
       stopClock();
-      showToast('Час вийшов');
+      showToast(t('timeOutMsg'));
     } else {
       renderClock();
     }
   }
+});
+
+document.querySelector('.judge-lang-toggle').addEventListener('click', (event) => {
+  const button = event.target.closest('[data-lang]');
+  if (!button) return;
+  language = button.dataset.lang;
+  localStorage.setItem('flag-score-judge-language', language);
+  updateChrome();
+  renderMatch();
 });
 
 setInterval(() => {

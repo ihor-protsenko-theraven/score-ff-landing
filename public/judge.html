@@ -16,51 +16,52 @@
           <span class="brand__mark"><img class="brand__logo-svg" src="/favicon.svg" alt="" width="64" height="64" /></span>
           <span class="brand__text-group"><span class="brand__name">FLAG SCORE</span><span class="brand__sport-badge">REFEREE MODE</span></span>
         </a>
-        <span class="kicker">ШВИДКИЙ ДОСТУП</span>
-        <h1>Суддівська панель</h1>
-        <p>Введіть пароль один раз. Сесія збережеться на цьому пристрої на 18 годин.</p>
+        <span class="kicker" data-i18n="quickAccess">ШВИДКИЙ ДОСТУП</span>
+        <h1 data-i18n="refereePanel">Суддівська панель</h1>
+        <p data-i18n="loginHint">Введіть пароль один раз. Сесія збережеться на цьому пристрої на 18 годин.</p>
         <form class="judge-login__form" id="judgeLoginForm">
           <input class="visually-hidden" name="username" type="text" autocomplete="username" value="judge" readonly tabindex="-1" aria-label="Користувач" />
-          <label>Пароль судді<input id="judgePasswordInput" name="password" type="password" autocomplete="current-password" required placeholder="Введіть пароль" /></label>
-          <button class="button button--primary button--wide" type="submit">Відкрити матч <span>→</span></button>
+          <label><span data-i18n="refereePassword">Пароль судді</span><input id="judgePasswordInput" name="password" type="password" autocomplete="current-password" required placeholder="Введіть пароль" data-i18n-placeholder="enterPassword" /></label>
+          <button class="button button--primary button--wide" type="submit"><span data-i18n="openMatchBtn">Відкрити матч</span> <span>→</span></button>
           <p class="form-error" id="judgeLoginError" role="alert"></p>
         </form>
-        <a class="back-link" href="/">← Публічна сторінка</a>
+        <a class="back-link" href="/" data-i18n="publicPageLink">← Публічна сторінка</a>
       </div>
     </section>
 
     <main class="judge-app" id="judgeApp" hidden>
       <header class="judge-header">
-        <a class="judge-header__brand" href="/" aria-label="FLAG SCORE — публічна сторінка">
+        <a class="judge-header__brand" href="/" aria-label="FLAG SCORE — публічна сторінка" data-i18n-aria="brandLink">
           <img src="/favicon.svg" alt="" width="40" height="40" />
           <span><strong>FLAG SCORE</strong><small>REFEREE MODE</small></span>
         </a>
         <div class="judge-header__status">
-          <span class="judge-sync" id="judgeSync" data-state="ready"><i aria-hidden="true"></i><span>Синхронізовано</span></span>
-          <button class="judge-icon-button" id="judgeLogout" type="button" aria-label="Вийти із суддівської панелі">↪</button>
+          <div class="segmented judge-lang-toggle"><button type="button" data-lang="uk">UK</button><button type="button" data-lang="en">EN</button></div>
+          <span class="judge-sync" id="judgeSync" data-state="ready"><i aria-hidden="true"></i><span data-i18n="syncReady">Синхронізовано</span></span>
+          <button class="judge-icon-button" id="judgeLogout" type="button" aria-label="Вийти із суддівської панелі" data-i18n-aria="logout">↪</button>
         </div>
       </header>
 
       <div class="judge-shell">
-        <section class="judge-picker" aria-label="Вибір матчу">
-          <label for="judgeMatchSelect">Матч</label>
+        <section class="judge-picker" aria-label="Вибір матчу" data-i18n-aria="matchSelectAria">
+          <label for="judgeMatchSelect" data-i18n="matchLabel">Матч</label>
           <select id="judgeMatchSelect"></select>
           <span id="judgeMatchMeta"></span>
         </section>
 
         <section class="judge-empty" id="judgeEmpty" hidden>
           <span aria-hidden="true">🏈</span>
-          <h1>Матчів поки немає</h1>
-          <p>Адміністратор має спочатку додати матч до турніру.</p>
-          <button class="button button--secondary" id="judgeReload" type="button">Оновити</button>
+          <h1 data-i18n="noMatchesTitle">Матчів поки немає</h1>
+          <p data-i18n="noMatchesDesc">Адміністратор має спочатку додати матч до турніру.</p>
+          <button class="button button--secondary" id="judgeReload" type="button" data-i18n="refreshBtn">Оновити</button>
         </section>
 
         <div class="judge-console" id="judgeConsole">
           <section class="judge-clock-card" aria-labelledby="judgeClockTitle">
-            <div class="judge-section-title"><span>GAME CLOCK</span><h1 id="judgeClockTitle">Час</h1></div>
-            <output class="judge-clock" id="judgeClock" aria-live="off" title="Натисніть, щоб задати час">20:00</output>
+            <div class="judge-section-title"><span>GAME CLOCK</span><h1 id="judgeClockTitle" data-i18n="timeLabel">Час</h1></div>
+            <output class="judge-clock" id="judgeClock" aria-live="off" title="Натисніть, щоб задати час" data-i18n-title="clickToSetTimeTitle">20:00</output>
             <div class="judge-clock__controls">
-              <button class="judge-clock__toggle" id="judgeClockToggle" type="button" aria-pressed="false"><span aria-hidden="true">▶</span> Старт</button>
+              <button class="judge-clock__toggle" id="judgeClockToggle" type="button" aria-pressed="false"><span aria-hidden="true">▶</span> <span data-i18n="startBtn">Старт</span></button>
               <div class="judge-clock__deltas">
                 <button type="button" data-clock-delta="-10" aria-label="Мінус 10 секунд">−10с</button>
                 <button type="button" data-clock-delta="-1" aria-label="Мінус 1 секунда">−1с</button>
@@ -69,20 +70,20 @@
               </div>
             </div>
             <div class="judge-clock__aux">
-              <button class="judge-clock-btn" id="judgeOpenClockModal" type="button">⏱ Задати час</button>
+              <button class="judge-clock-btn" id="judgeOpenClockModal" type="button">⏱ <span data-i18n="setTimeBtn">Задати час</span></button>
               <button class="judge-reset-clock" id="judgeResetClock" type="button">Поставити 20:00</button>
             </div>
           </section>
 
-          <section class="judge-state-card" aria-label="Стан розіграшу">
+          <section class="judge-state-card" aria-label="Стан розіграшу" data-i18n-aria="gameStateLabel">
             <div class="judge-control-block">
-              <div class="judge-section-title"><span>CURRENT DOWN</span><h2>Даун</h2></div>
+              <div class="judge-section-title"><span>CURRENT DOWN</span><h2 data-i18n="downLabel">Даун</h2></div>
               <div class="judge-segments judge-segments--down" id="judgeDowns">
                 <button type="button" data-down="1">1</button><button type="button" data-down="2">2</button><button type="button" data-down="3">3</button><button type="button" data-down="4">4</button>
               </div>
             </div>
             <div class="judge-control-block">
-              <div class="judge-section-title"><span>PERIOD</span><h2>Період</h2></div>
+              <div class="judge-section-title"><span>PERIOD</span><h2 data-i18n="periodLabel">Період</h2></div>
               <div class="judge-segments" id="judgePeriods">
                 <button type="button" data-period="1">1 H</button><button type="button" data-period="2">2 H</button><button type="button" data-period="OT">OT</button>
               </div>
@@ -90,32 +91,38 @@
           </section>
 
           <section class="judge-score-card" aria-labelledby="judgeScoreTitle">
-            <div class="judge-section-title"><span>QUICK SCORE</span><h2 id="judgeScoreTitle">Рахунок</h2></div>
-            <p class="judge-score-hint">Тут лише офіційний рахунок. Авторів занесень паралельно додає статистик в адмінці.</p>
+            <div class="judge-section-title"><span>QUICK SCORE</span><h2 id="judgeScoreTitle" data-i18n="scoreLabel">Рахунок</h2></div>
+            <p class="judge-score-hint" data-i18n="scoreHint">Натисніть на картку команди, щоб змінити володіння. Авторів занесень паралельно додає статистик в адмінці.</p>
             <div class="judge-scoreboard">
               <article class="judge-team" data-side="home">
-                <span class="judge-team__name" id="judgeHomeName">Команда 1</span>
-                <strong class="judge-team__score" id="judgeHomeScore">0</strong>
+                <button class="judge-team__possession-btn" type="button" data-possession-side="home" aria-pressed="false">
+                  <span class="judge-team__name" id="judgeHomeName">Команда 1</span>
+                  <strong class="judge-team__score" id="judgeHomeScore">0</strong>
+                  <span class="judge-team__possession-state"><span class="judge-team__possession-icon" aria-hidden="true">🏈</span><span data-i18n="possessionLabel">Володіння</span></span>
+                </button>
                 <div class="judge-score-actions">
                   <button class="judge-score-action judge-score-action--td" type="button" data-score-side="home" data-score-delta="6" data-play="Тачдаун">TD <b>+6</b></button>
-                  <button class="judge-score-action judge-score-action--xp" type="button" data-score-side="home" data-score-delta="1" data-play="Реалізація +1">+1 <b>Р</b></button>
-                  <button class="judge-score-action judge-score-action--xp" type="button" data-score-side="home" data-score-delta="2" data-play="Реалізація +2">+2 <b>Р</b></button>
-                  <button class="judge-score-action judge-score-action--safety" type="button" data-score-side="home" data-score-delta="1" data-play="Сейфті +1">+1 <b>С</b></button>
-                  <button class="judge-score-action judge-score-action--safety" type="button" data-score-side="home" data-score-delta="2" data-play="Сейфті +2">+2 <b>С</b></button>
-                  <button class="judge-score-action judge-score-action--correction" type="button" data-score-side="home" data-score-delta="-1" data-play="Корекція −1">−1</button>
+                  <button class="judge-score-action judge-score-action--xp" type="button" data-score-side="home" data-score-delta="1" data-play="Реалізація +1">+1 <b>R</b></button>
+                  <button class="judge-score-action judge-score-action--xp" type="button" data-score-side="home" data-score-delta="2" data-play="Реалізація +2">+2 <b>R</b></button>
+                  <button class="judge-score-action judge-score-action--safety" type="button" data-score-side="home" data-score-delta="1" data-play="Сейфті +1">+1 <b>S</b></button>
+                  <button class="judge-score-action judge-score-action--safety" type="button" data-score-side="home" data-score-delta="2" data-play="Сейфті +2">+2 <b>S</b></button>
+                  <button class="judge-score-action judge-score-action--correction" type="button" data-score-side="home" data-score-delta="-1" data-play="Корекція −1" data-i18n="correctionMinus1">−1</button>
                 </div>
               </article>
               <span class="judge-score-divider" aria-hidden="true">:</span>
               <article class="judge-team" data-side="away">
-                <span class="judge-team__name" id="judgeAwayName">Команда 2</span>
-                <strong class="judge-team__score" id="judgeAwayScore">0</strong>
+                <button class="judge-team__possession-btn" type="button" data-possession-side="away" aria-pressed="false">
+                  <span class="judge-team__name" id="judgeAwayName">Команда 2</span>
+                  <strong class="judge-team__score" id="judgeAwayScore">0</strong>
+                  <span class="judge-team__possession-state"><span class="judge-team__possession-icon" aria-hidden="true">🏈</span><span data-i18n="possessionLabel">Володіння</span></span>
+                </button>
                 <div class="judge-score-actions">
                   <button class="judge-score-action judge-score-action--td" type="button" data-score-side="away" data-score-delta="6" data-play="Тачдаун">TD <b>+6</b></button>
-                  <button class="judge-score-action judge-score-action--xp" type="button" data-score-side="away" data-score-delta="1" data-play="Реалізація +1">+1 <b>Р</b></button>
-                  <button class="judge-score-action judge-score-action--xp" type="button" data-score-side="away" data-score-delta="2" data-play="Реалізація +2">+2 <b>Р</b></button>
-                  <button class="judge-score-action judge-score-action--safety" type="button" data-score-side="away" data-score-delta="1" data-play="Сейфті +1">+1 <b>С</b></button>
-                  <button class="judge-score-action judge-score-action--safety" type="button" data-score-side="away" data-score-delta="2" data-play="Сейфті +2">+2 <b>С</b></button>
-                  <button class="judge-score-action judge-score-action--correction" type="button" data-score-side="away" data-score-delta="-1" data-play="Корекція −1">−1</button>
+                  <button class="judge-score-action judge-score-action--xp" type="button" data-score-side="away" data-score-delta="1" data-play="Реалізація +1">+1 <b>R</b></button>
+                  <button class="judge-score-action judge-score-action--xp" type="button" data-score-side="away" data-score-delta="2" data-play="Реалізація +2">+2 <b>R</b></button>
+                  <button class="judge-score-action judge-score-action--safety" type="button" data-score-side="away" data-score-delta="1" data-play="Сейфті +1">+1 <b>S</b></button>
+                  <button class="judge-score-action judge-score-action--safety" type="button" data-score-side="away" data-score-delta="2" data-play="Сейфті +2">+2 <b>S</b></button>
+                  <button class="judge-score-action judge-score-action--correction" type="button" data-score-side="away" data-score-delta="-1" data-play="Корекція −1" data-i18n="correctionMinus1">−1</button>
                 </div>
               </article>
             </div>
@@ -124,35 +131,35 @@
           <section class="judge-timeout-card" id="judgeTimeoutCard" aria-labelledby="judgeTimeoutTitle">
             <div class="judge-section-title">
               <span>TEAM TIMEOUTS</span>
-              <h2 id="judgeTimeoutTitle">Тайм-аути · <b id="judgeTimeoutPeriod">1 половина</b></h2>
+              <h2 id="judgeTimeoutTitle"><span data-i18n="timeoutsLabel">Тайм-аути</span> · <b id="judgeTimeoutPeriod">1 половина</b></h2>
             </div>
-            <p>По 2 на кожну команду в кожній половині. Натискання зупиняє ігровий час.</p>
+            <p id="judgeTimeoutHint" data-i18n="timeoutsHint">По 2 на кожну команду в кожній половині. Натискання зупиняє ігровий час.</p>
             <div class="judge-timeout-grid">
               <article class="judge-timeout-team" data-timeout-team="home">
                 <span class="judge-timeout-team__name" id="judgeHomeTimeoutName">Команда 1</span>
                 <output id="judgeHomeTimeouts">2</output>
-                <small>залишилось</small>
+                <small data-i18n="leftLabel">залишилось</small>
                 <div class="judge-timeout-actions">
-                  <button type="button" data-timeout-side="home" data-timeout-action="undo">↶ Скасувати</button>
-                  <button type="button" data-timeout-side="home" data-timeout-action="use">Тайм-аут</button>
+                  <button type="button" data-timeout-side="home" data-timeout-action="undo">↶ <span data-i18n="undoBtn">Скасувати</span></button>
+                  <button type="button" data-timeout-side="home" data-timeout-action="use" data-i18n="timeoutBtn">Тайм-аут</button>
                 </div>
               </article>
               <article class="judge-timeout-team" data-timeout-team="away">
                 <span class="judge-timeout-team__name" id="judgeAwayTimeoutName">Команда 2</span>
                 <output id="judgeAwayTimeouts">2</output>
-                <small>залишилось</small>
+                <small data-i18n="leftLabel">залишилось</small>
                 <div class="judge-timeout-actions">
-                  <button type="button" data-timeout-side="away" data-timeout-action="undo">↶ Скасувати</button>
-                  <button type="button" data-timeout-side="away" data-timeout-action="use">Тайм-аут</button>
+                  <button type="button" data-timeout-side="away" data-timeout-action="undo">↶ <span data-i18n="undoBtn">Скасувати</span></button>
+                  <button type="button" data-timeout-side="away" data-timeout-action="use" data-i18n="timeoutBtn">Тайм-аут</button>
                 </div>
               </article>
             </div>
           </section>
 
-          <section class="judge-match-status" aria-label="Статус матчу">
-            <button type="button" data-match-status="live">Наживо</button>
-            <button type="button" data-match-status="halftime">Перерва</button>
-            <button type="button" data-match-status="finished">Завершено</button>
+          <section class="judge-match-status" aria-label="Статус матчу" data-i18n-aria="matchStatusLabel">
+            <button type="button" data-match-status="live" data-i18n="liveBtn">Наживо</button>
+            <button type="button" data-match-status="halftime" data-i18n="halftimeBtn">Перерва</button>
+            <button type="button" data-match-status="finished" data-i18n="finishedBtn">Завершено</button>
           </section>
         </div>
       </div>
@@ -163,20 +170,20 @@
       <div class="info-dialog__top">
         <div>
           <span class="kicker">GAME CLOCK</span>
-          <h2 id="judgeClockDialogTitle">Задати час</h2>
+          <h2 id="judgeClockDialogTitle" data-i18n="setTimeTitle">Задати час</h2>
         </div>
-        <button class="icon-button" id="closeJudgeClockDialog" type="button" aria-label="Закрити">×</button>
+        <button class="icon-button" id="closeJudgeClockDialog" type="button" aria-label="Закрити" data-i18n-aria="closeBtn">×</button>
       </div>
       <form class="judge-clock-dialog__form" id="judgeClockForm">
-        <p class="judge-clock-dialog__hint">Вкажіть потрібний час матчу або виберіть швидкий пресет:</p>
+        <p class="judge-clock-dialog__hint" data-i18n="setTimeHint">Вкажіть потрібний час матчу або виберіть швидкий пресет:</p>
         <div class="judge-clock-inputs">
           <label>
-            <span>Хвилини</span>
+            <span data-i18n="minutesLabel">Хвилини</span>
             <input id="judgeClockMinutes" name="minutes" type="number" min="0" max="99" step="1" inputmode="numeric" required />
           </label>
           <span class="judge-clock-inputs__colon" aria-hidden="true">:</span>
           <label>
-            <span>Секунди</span>
+            <span data-i18n="secondsLabel">Секунди</span>
             <input id="judgeClockSeconds" name="seconds" type="number" min="0" max="59" step="1" inputmode="numeric" required />
           </label>
         </div>
@@ -188,7 +195,7 @@
           <button type="button" data-preset="02:00">02:00</button>
         </div>
         <div class="judge-clock-dialog__actions">
-          <button class="button button--primary button--wide" type="submit">Встановити час</button>
+          <button class="button button--primary button--wide" type="submit" data-i18n="setTimeSubmit">Встановити час</button>
         </div>
       </form>
     </dialog>

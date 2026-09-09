@@ -114,3 +114,10 @@ test('a team cannot use more than two timeouts in one half', () => {
 
   assert.throws(() => validateTournament(tournament), /тайм.?аут/i);
 });
+
+test('possession can only belong to a team playing in the match', () => {
+  const tournament = tournamentWithTouchdown({ id: 'td-1', teamId: 'wolves', scorer: 'Player 7' });
+  tournament.matches[0].possessionTeamId = 'nxt';
+
+  assert.throws(() => validateTournament(tournament), /володіння.*команд/i);
+});
